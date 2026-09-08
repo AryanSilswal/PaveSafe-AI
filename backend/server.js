@@ -122,7 +122,7 @@ app.get('/api/hazards', async (req, res) => {
 });
 
 // Update hazard status (Admin Module)
-app.put('/api/hazards/:id/status', authenticateToken, async (req, res) => {
+app.put('/api/hazards/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
