@@ -1,0 +1,25 @@
+previewsEnabled: false
+services:
+  - type: web
+    name: pavesafe-ai-service
+    env: docker
+    dockerContext: ./ai-service
+    dockerfilePath: ./ai-service/Dockerfile
+    plan: free
+
+  - type: web
+    name: pavesafe-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        sync: false # You will paste your Supabase URL here in the Render dashboard
+      - key: AI_SERVICE_URL
+        fromService:
+          type: web
+          name: pavesafe-ai-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: JWT_SECRET
+        generateValue: true

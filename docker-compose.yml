@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: pavesafe_db
+    environment:
+      POSTGRES_USER: ${DB_USER:-pavesafe}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-pavesafe_password}
+      POSTGRES_DB: ${DB_NAME:-pavesafe_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build:
+      context: ./backend
+    container_name: pavesafe_backend
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgres://${DB_USER:-pavesafe}:${DB_PASSWORD:-pavesafe_password}@db:5432/${DB_NAME:-pavesafe_db}
+      AI_SERVICE_URL: http://ai-service:8000
+      JWT_SECRET: ${JWT_SECRET:-supersecretkey}
+      PORT: 5000
+    depends_on:
+      - db
+      - ai-service
+
+  ai-service:
+    build:
+      context: ./ai-service
+    container_name: pavesafe_ai_service
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: pavesafe_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:5000
+      NEXT_PUBLIC_MAPBOX_TOKEN: ${MAPBOX_TOKEN:-your_mapbox_token_here}
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
