@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import Map, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl';
+import Map, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl/mapbox';
 import { Camera, AlertTriangle, CheckCircle, Navigation } from 'lucide-react';
 import axios from 'axios';
 

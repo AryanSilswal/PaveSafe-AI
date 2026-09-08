@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock } from 'lucide-react';
-import Map, { Marker } from 'react-map-gl';
+import Map, { Marker } from 'react-map-gl/mapbox';
 
 const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiYm9ndXN0b2tlbiIsImEiOiJjamF6ZmJpdW40Z2M0MzJxdHhkZndzM2FhIn0.bogustoken';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
