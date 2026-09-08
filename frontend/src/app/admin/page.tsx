@@ -45,8 +45,12 @@ export default function AdminDashboard() {
       setToken(receivedToken);
       setIsAuthenticated(true);
       localStorage.setItem('pavesafe_admin_token', receivedToken);
-    } catch (error) {
-      setLoginError('Invalid username or password');
+    } catch (error: any) {
+      if (error.response) {
+        setLoginError(error.response.data?.error || 'Invalid username or password');
+      } else {
+        setLoginError(`Network Error: Cannot reach backend at ${API_URL}`);
+      }
     }
   };
 
