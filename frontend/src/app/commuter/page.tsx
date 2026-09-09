@@ -1,19 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import Map, { Marker, NavigationControl, GeolocateControl } from 'react-map-gl/mapbox';
+import dynamic from 'next/dynamic';
 import { Camera, AlertTriangle, CheckCircle, Navigation } from 'lucide-react';
 import axios from 'axios';
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiYm9ndXN0b2tlbiIsImEiOiJjamF6ZmJpdW40Z2M0MzJxdHhkZndzM2FhIn0.bogustoken';
+const CommuterMapComponent = dynamic(() => import('../../components/CommuterMapComponent'), { ssr: false });
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function CommuterPage() {
-  const [viewState, setViewState] = useState({
-    longitude: 77.2090, // Default to New Delhi
-    latitude: 28.6139,
-    zoom: 14
-  });
   const [hazards, setHazards] = useState<any[]>([]);
   const [isReporting, setIsReporting] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
@@ -25,16 +21,13 @@ export default function CommuterPage() {
     // Get user location for reporting
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
-        setViewState(prev => ({
-          ...prev,
-          longitude: position.coords.longitude,
-          latitude: position.coords.latitude,
-        }));
         setLocation({
           lat: position.coords.latitude,
           lng: position.coords.longitude
         });
-      });
+      }, (err) => {
+        console.error("GPS Error:", err);
+      }, { enableHighAccuracy: true });
     }
   }, []);
 
@@ -76,15 +69,6 @@ export default function CommuterPage() {
       alert('Failed to report hazard.');
     } finally {
       setIsReporting(false);
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch(severity) {
-      case 'Critical': return '#ef4444'; // red
-      case 'Medium': return '#f59e0b'; // amber
-      case 'Low': return '#22c55e'; // green
-      default: return '#6b7280'; // gray
     }
   };
 
@@ -152,30 +136,8 @@ export default function CommuterPage() {
       </div>
 
       {/* Map Area */}
-      <div className="flex-1 relative">
-        <Map
-          {...viewState}
-          onMove={evt => setViewState(evt.viewState)}
-          mapStyle="mapbox://styles/mapbox/navigation-day-v1"
-          mapboxAccessToken={MAPBOX_TOKEN}
-          style={{ width: '100%', height: '100%' }}
-        >
-          <GeolocateControl position="top-left" />
-          <NavigationControl position="top-left" />
-          
-          {hazards.map((hazard) => (
-            <Marker 
-              key={hazard.id} 
-              longitude={hazard.longitude} 
-              latitude={hazard.latitude}
-              anchor="bottom"
-            >
-              <div className="bg-white p-1 rounded-full shadow-md cursor-pointer transform hover:scale-110 transition-transform">
-                <AlertTriangle size={24} color={getSeverityColor(hazard.severity)} />
-              </div>
-            </Marker>
-          ))}
-        </Map>
+      <div className="flex-1 relative z-0">
+        <CommuterMapComponent hazards={hazards} location={location} />
       </div>
     </div>
   );

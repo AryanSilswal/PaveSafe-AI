@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock } from 'lucide-react';
-import Map, { Marker } from 'react-map-gl/mapbox';
+import dynamic from 'next/dynamic';
 
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || 'pk.eyJ1IjoiYm9ndXN0b2tlbiIsImEiOiJjamF6ZmJpdW40Z2M0MzJxdHhkZndzM2FhIn0.bogustoken';
+const AdminMapComponent = dynamic(() => import('../../components/AdminMapComponent'), { ssr: false });
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function AdminDashboard() {
@@ -246,31 +247,8 @@ export default function AdminDashboard() {
             </table>
           </div>
         ) : (
-          <div className="h-[80vh] rounded-xl overflow-hidden shadow-md border border-gray-200">
-            <Map
-              initialViewState={{
-                longitude: 77.2090,
-                latitude: 28.6139,
-                zoom: 12
-              }}
-              mapStyle="mapbox://styles/mapbox/light-v11"
-              mapboxAccessToken={MAPBOX_TOKEN}
-            >
-              {hazards.map((hazard) => (
-                <Marker 
-                  key={hazard.id} 
-                  longitude={hazard.longitude} 
-                  latitude={hazard.latitude}
-                >
-                  <div className={`p-2 rounded-full shadow-lg text-white text-xs font-bold ${
-                    hazard.severity === 'Critical' ? 'bg-red-500' : 
-                    hazard.severity === 'Medium' ? 'bg-amber-500' : 'bg-green-500'
-                  }`}>
-                    {hazard.id}
-                  </div>
-                </Marker>
-              ))}
-            </Map>
+          <div className="h-[80vh] rounded-xl overflow-hidden shadow-md border border-gray-200 relative z-0">
+            <AdminMapComponent hazards={hazards} />
           </div>
         )}
       </main>
