@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock, User, Calendar, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock, User, Calendar, AlertTriangle, Download } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const AdminMapComponent = dynamic(() => import('../../components/AdminMapComponent'), { ssr: false });
@@ -124,6 +124,23 @@ export default function AdminDashboard() {
     return <span className={`${baseClasses} bg-green-100 text-green-700 ring-2 ring-green-400`}>{severity}</span>;
   };
 
+  const exportCSV = () => {
+    const headers = ['ID', 'Severity', 'Status', 'Reported At', 'Assigned Worker', 'Deadline', 'Reporter Username', 'Reporter ID', 'Latitude', 'Longitude'];
+    const rows = hazards.map(h => [
+      h.id, h.severity, h.status, new Date(h.reported_at).toLocaleString(),
+      h.assigned_worker || 'Unassigned', h.deadline ? new Date(h.deadline).toLocaleDateString() : 'None',
+      h.reporter_name || 'Anonymous', h.reporter_id || 'N/A', h.latitude, h.longitude
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `pavesafe_hazards_report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -189,6 +206,12 @@ export default function AdminDashboard() {
           <h1 className="text-xl font-bold">PaveSafe Admin</h1>
         </div>
         <div className="flex items-center gap-4">
+          <button 
+            onClick={exportCSV}
+            className="flex items-center gap-2 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 px-4 py-1.5 rounded-lg font-medium transition-colors border border-emerald-500/30 text-sm"
+          >
+            <Download size={16} /> Export CSV
+          </button>
           <div className="flex gap-2 bg-slate-800 p-1 rounded-lg">
             <button onClick={() => setViewMode('list')} className={`p-1.5 px-3 rounded-md flex items-center gap-1 text-sm ${viewMode === 'list' ? 'bg-slate-600 text-white' : 'text-slate-300'}`}><List size={16} /> List</button>
             <button onClick={() => setViewMode('map')} className={`p-1.5 px-3 rounded-md flex items-center gap-1 text-sm ${viewMode === 'map' ? 'bg-slate-600 text-white' : 'text-slate-300'}`}><MapIcon size={16} /> Map</button>

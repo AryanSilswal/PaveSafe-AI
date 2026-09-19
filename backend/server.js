@@ -112,6 +112,17 @@ app.get('/api/auth/me', authenticateToken, requireAuth, async (req, res) => {
   }
 });
 
+// --- Leaderboard Route ---
+app.get('/api/users/leaderboard', async (req, res) => {
+  try {
+    const result = await pool.query("SELECT username, points FROM users WHERE username != 'admin' ORDER BY points DESC LIMIT 5");
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Leaderboard error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // --- Hazard Routes ---
 app.post('/api/hazards/report', authenticateToken, upload.single('image'), async (req, res) => {
   try {

@@ -24,6 +24,7 @@ export default function CommuterPage() {
   // Notification State
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
   // Route Planning State
   const [routeMode, setRouteMode] = useState(false);
@@ -44,6 +45,7 @@ export default function CommuterPage() {
 
   useEffect(() => {
     fetchHazards();
+    fetchLeaderboard();
     
     // Check for saved token
     const token = localStorage.getItem('pavesafe_token');
@@ -68,10 +70,22 @@ export default function CommuterPage() {
   // Poll for notifications if logged in
   useEffect(() => {
     if (user) {
-      const interval = setInterval(fetchNotifications, 10000);
+      const interval = setInterval(() => {
+        fetchNotifications();
+        fetchLeaderboard();
+      }, 10000);
       return () => clearInterval(interval);
     }
   }, [user]);
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/users/leaderboard`);
+      setLeaderboard(res.data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchUserProfile = async () => {
     try {
@@ -517,6 +531,29 @@ export default function CommuterPage() {
             )}
           </div>
         )}
+
+        {/* LEADERBOARD UI */}
+        <div className="mt-4 bg-gray-50 border rounded-xl p-4 flex flex-col">
+          <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+            🏆 Top Safe Citizens
+          </h3>
+          <div className="space-y-2">
+            {leaderboard.length === 0 ? (
+              <p className="text-sm text-gray-500 italic">No rankings yet.</p>
+            ) : (
+              leaderboard.map((u, index) => (
+                <div key={u.username} className={`flex justify-between items-center p-2 rounded-lg border ${index === 0 ? 'bg-yellow-50 border-yellow-200' : index === 1 ? 'bg-gray-100 border-gray-300' : index === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-100'}`}>
+                  <div className="flex items-center gap-2 text-sm font-medium">
+                    <span className="text-gray-500 font-bold w-4">{index + 1}.</span>
+                    <span className="text-gray-800">@{u.username}</span>
+                  </div>
+                  <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{u.points} pts</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* Map Area */}
