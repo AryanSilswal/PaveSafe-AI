@@ -6,10 +6,10 @@ import L from 'leaflet';
 import { useEffect } from 'react';
 
 // Fix for default marker icons in Leaflet with Next.js
-const createIcon = (severity: string, id: number) => {
-  let color = '#22c55e'; // Low (Green)
-  if (severity === 'Medium') color = '#f59e0b'; // Amber
-  if (severity === 'Critical') color = '#ef4444'; // Red
+const createIcon = (severity: number, id: number) => {
+  let color = '#22c55e'; // 1-3 (Green)
+  if (severity >= 4 && severity <= 7) color = '#f59e0b'; // 4-7 Amber
+  if (severity >= 8) color = '#ef4444'; // 8-10 Red
 
   return L.divIcon({
     className: 'custom-div-icon',

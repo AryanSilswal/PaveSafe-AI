@@ -1,9 +1,9 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 // Fly to location component
 function LocationUpdater({ location }: { location: {lat: number, lng: number} | null }) {
@@ -16,10 +16,25 @@ function LocationUpdater({ location }: { location: {lat: number, lng: number} | 
   return null;
 }
 
-const createIcon = (severity: string) => {
-  let color = '#22c55e'; // Low (Green)
-  if (severity === 'Medium') color = '#f59e0b'; // Amber
-  if (severity === 'Critical') color = '#ef4444'; // Red
+// Click listener to set destination
+function MapClickListener({ onMapClick }: { onMapClick: (latlng: {lat: number, lng: number}) => void }) {
+  const map = useMap();
+  useEffect(() => {
+    const handleClick = (e: any) => {
+      onMapClick(e.latlng);
+    };
+    map.on('click', handleClick);
+    return () => {
+      map.off('click', handleClick);
+    };
+  }, [map, onMapClick]);
+  return null;
+}
+
+const createIcon = (severity: number) => {
+  let color = '#22c55e'; // 1-3 (Green)
+  if (severity >= 4 && severity <= 7) color = '#f59e0b'; // 4-7 Amber
+  if (severity >= 8) color = '#ef4444'; // 8-10 Red
 
   return L.divIcon({
     className: 'custom-div-icon',
@@ -29,7 +44,7 @@ const createIcon = (severity: string) => {
   });
 };
 
-export default function CommuterMapComponent({ hazards, location }: { hazards: any[], location: {lat: number, lng: number} | null }) {
+export default function CommuterMapComponent({ hazards, location, routeCoordinates, onMapClick, destination }: { hazards: any[], location: {lat: number, lng: number} | null, routeCoordinates?: [number, number][], onMapClick?: (latlng: {lat: number, lng: number}) => void, destination?: {lat: number, lng: number} | null }) {
   useEffect(() => {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
@@ -50,7 +65,28 @@ export default function CommuterMapComponent({ hazards, location }: { hazards: a
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <LocationUpdater location={location} />
+      {onMapClick && <MapClickListener onMapClick={onMapClick} />}
       
+      {/* Route Line */}
+      {routeCoordinates && routeCoordinates.length > 0 && (
+        <Polyline positions={routeCoordinates} color="#3b82f6" weight={5} opacity={0.7} />
+      )}
+
+      {/* Destination Marker */}
+      {destination && (
+        <Marker 
+          position={[destination.lat, destination.lng]}
+          icon={L.divIcon({
+            className: 'dest-location',
+            html: '<div style="background-color: #8b5cf6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(139, 92, 246, 0.8);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })}
+        >
+          <Popup>Destination</Popup>
+        </Marker>
+      )}
+
       {/* Current User Location Marker */}
       {location && (
         <Marker 

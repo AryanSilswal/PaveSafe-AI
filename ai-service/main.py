@@ -38,8 +38,8 @@ async def analyze_image(file: UploadFile = File(...)):
         # Later, replace this with: results = model(img) ...
         
         import random
-        severity_options = ["Low", "Medium", "Critical"]
-        severity = random.choice(severity_options)
+        # Random integer between 1 and 10
+        severity = random.randint(1, 10)
 
         return {
             "severity": severity,

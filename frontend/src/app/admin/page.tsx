@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock } from 'lucide-react';
+import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock, User, Calendar, AlertTriangle } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
 const AdminMapComponent = dynamic(() => import('../../components/AdminMapComponent'), { ssr: false });
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function AdminDashboard() {
@@ -20,12 +19,19 @@ export default function AdminDashboard() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
+  // Assignment Modal
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedHazard, setSelectedHazard] = useState<number | null>(null);
+  const [workerName, setWorkerName] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
-    // Check for saved token
     const savedToken = localStorage.getItem('pavesafe_admin_token');
     if (savedToken) {
       setToken(savedToken);
       setIsAuthenticated(true);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
     }
   }, []);
 
@@ -42,13 +48,16 @@ export default function AdminDashboard() {
     setLoginError('');
     try {
       const res = await axios.post(`${API_URL}/api/auth/login`, { username, password });
+      if (res.data.user.role !== 'admin') throw new Error("Not an admin");
+      
       const receivedToken = res.data.token;
       setToken(receivedToken);
       setIsAuthenticated(true);
       localStorage.setItem('pavesafe_admin_token', receivedToken);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${receivedToken}`;
     } catch (error: any) {
       if (error.response) {
-        setLoginError(error.response.data?.error || 'Invalid username or password');
+        setLoginError(error.response.data?.error || 'Invalid credentials');
       } else {
         setLoginError(`Network Error: Cannot reach backend at ${API_URL}`);
       }
@@ -59,6 +68,7 @@ export default function AdminDashboard() {
     setIsAuthenticated(false);
     setToken('');
     localStorage.removeItem('pavesafe_admin_token');
+    delete axios.defaults.headers.common['Authorization'];
   };
 
   const fetchHazards = async () => {
@@ -70,31 +80,48 @@ export default function AdminDashboard() {
     }
   };
 
-  const updateStatus = async (id: number, newStatus: string) => {
+  const openAssignModal = (id: number) => {
+    setSelectedHazard(id);
+    setShowAssignModal(true);
+  };
+
+  const submitAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedHazard) return;
+    setIsSubmitting(true);
     try {
-      await axios.put(
-        `${API_URL}/api/hazards/${id}/status`, 
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.put(`${API_URL}/api/hazards/${selectedHazard}/status`, { 
+        status: 'In Progress',
+        assigned_worker: workerName,
+        deadline: deadline
+      });
+      setShowAssignModal(false);
+      setWorkerName('');
+      setDeadline('');
       fetchHazards();
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update status. Your session may have expired.');
-      if (axios.isAxiosError(error) && error.response?.status === 403) {
-        handleLogout();
-      }
+      console.error('Error assigning:', error);
+      alert('Failed to assign worker.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const getSeverityBadge = (severity: string) => {
-    const baseClasses = "px-2 py-1 rounded-full text-xs font-semibold";
-    switch(severity) {
-      case 'Critical': return <span className={`${baseClasses} bg-red-100 text-red-700`}>Critical</span>;
-      case 'Medium': return <span className={`${baseClasses} bg-amber-100 text-amber-700`}>Medium</span>;
-      case 'Low': return <span className={`${baseClasses} bg-green-100 text-green-700`}>Low</span>;
-      default: return <span className={`${baseClasses} bg-gray-100 text-gray-700`}>Unknown</span>;
+  const markResolved = async (id: number) => {
+    try {
+      await axios.put(`${API_URL}/api/hazards/${id}/status`, { status: 'Resolved' });
+      fetchHazards();
+    } catch (error) {
+      console.error('Error resolving:', error);
+      alert('Failed to resolve.');
     }
+  };
+
+  const getSeverityBadge = (severity: number) => {
+    const baseClasses = "px-2 py-1 rounded-full text-xs font-semibold flex items-center justify-center w-8 h-8";
+    if (severity >= 8) return <span className={`${baseClasses} bg-red-100 text-red-700 ring-2 ring-red-400`}>{severity}</span>;
+    if (severity >= 4) return <span className={`${baseClasses} bg-amber-100 text-amber-700 ring-2 ring-amber-400`}>{severity}</span>;
+    return <span className={`${baseClasses} bg-green-100 text-green-700 ring-2 ring-green-400`}>{severity}</span>;
   };
 
   if (!isAuthenticated) {
@@ -102,9 +129,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100">
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-blue-100 p-3 rounded-full mb-4">
-              <Lock className="text-blue-600" size={32} />
-            </div>
+            <div className="bg-blue-100 p-3 rounded-full mb-4"><Lock className="text-blue-600" size={32} /></div>
             <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
             <p className="text-gray-500 text-sm mt-1">Authorized municipal personnel only</p>
           </div>
@@ -112,142 +137,150 @@ export default function AdminDashboard() {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-              <input 
-                type="text" 
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder="Enter username"
-                required
-              />
+              <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full p-3 border rounded-lg" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <input 
-                type="password" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder="Enter password"
-                required
-              />
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-3 border rounded-lg" required />
             </div>
-            
             {loginError && <p className="text-red-500 text-sm font-medium">{loginError}</p>}
-            
-            <button 
-              type="submit"
-              className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition-colors mt-2"
-            >
-              Sign In
-            </button>
+            <button type="submit" className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg">Sign In</button>
           </form>
-          
-          <div className="mt-6 text-center text-xs text-gray-400">
-            <p>Prototype Credentials: admin / admin</p>
-          </div>
+          <div className="mt-6 text-center text-xs text-gray-400"><p>Prototype Credentials: admin / admin</p></div>
         </div>
       </div>
     );
   }
 
+  // Analytics
+  const total = hazards.length;
+  const critical = hazards.filter(h => h.severity >= 8 && h.status !== 'Resolved').length;
+  const resolved = hazards.filter(h => h.status === 'Resolved').length;
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      {/* Assignment Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setShowAssignModal(false)} className="absolute top-4 right-4 text-gray-500">X</button>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><User className="text-blue-600"/> Assign Repair Crew</h3>
+            <form onSubmit={submitAssignment} className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Worker/Contractor Name</label>
+                <input type="text" required value={workerName} onChange={e=>setWorkerName(e.target.value)} className="w-full mt-1 p-2 border rounded" placeholder="e.g. John Doe - Unit 4" />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Resolution Deadline</label>
+                <input type="datetime-local" required value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border rounded" />
+              </div>
+              <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold mt-4">
+                {isSubmitting ? 'Assigning...' : 'Dispatch Crew'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Navbar */}
-      <header className="bg-slate-900 text-white p-4 flex justify-between items-center">
+      <header className="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md z-10">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="text-blue-400" />
-          <h1 className="text-xl font-bold">PaveSafe Admin Dashboard</h1>
+          <ShieldCheck className="text-blue-400" size={28}/>
+          <h1 className="text-xl font-bold">PaveSafe Admin</h1>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex gap-2 bg-slate-800 p-1 rounded-lg">
-            <button 
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 px-3 rounded-md flex items-center gap-1 text-sm ${viewMode === 'list' ? 'bg-slate-600 text-white' : 'text-slate-300 hover:text-white'}`}
-            >
-              <List size={16} /> List
-            </button>
-            <button 
-              onClick={() => setViewMode('map')}
-              className={`p-1.5 px-3 rounded-md flex items-center gap-1 text-sm ${viewMode === 'map' ? 'bg-slate-600 text-white' : 'text-slate-300 hover:text-white'}`}
-            >
-              <MapIcon size={16} /> Map
-            </button>
+            <button onClick={() => setViewMode('list')} className={`p-1.5 px-3 rounded-md flex items-center gap-1 text-sm ${viewMode === 'list' ? 'bg-slate-600 text-white' : 'text-slate-300'}`}><List size={16} /> List</button>
+            <button onClick={() => setViewMode('map')} className={`p-1.5 px-3 rounded-md flex items-center gap-1 text-sm ${viewMode === 'map' ? 'bg-slate-600 text-white' : 'text-slate-300'}`}><MapIcon size={16} /> Map</button>
           </div>
-          <button 
-            onClick={handleLogout}
-            className="text-sm text-slate-300 hover:text-white underline underline-offset-2"
-          >
-            Logout
-          </button>
+          <button onClick={handleLogout} className="text-sm text-slate-300 hover:text-white underline">Logout</button>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 p-6">
+        
+        {/* Analytics Header */}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div><p className="text-sm text-gray-500">Total Hazards</p><h2 className="text-2xl font-bold">{total}</h2></div>
+            <div className="bg-blue-100 p-3 rounded-full"><List className="text-blue-600" /></div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div><p className="text-sm text-gray-500">Active Critical Hazards</p><h2 className="text-2xl font-bold text-red-600">{critical}</h2></div>
+            <div className="bg-red-100 p-3 rounded-full"><AlertTriangle className="text-red-600" /></div>
+          </div>
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+            <div><p className="text-sm text-gray-500">Total Resolved</p><h2 className="text-2xl font-bold text-green-600">{resolved}</h2></div>
+            <div className="bg-green-100 p-3 rounded-full"><CheckCircle className="text-green-600" /></div>
+          </div>
+        </div>
+
         {viewMode === 'list' ? (
-          <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="p-4 font-semibold text-gray-600">ID</th>
-                  <th className="p-4 font-semibold text-gray-600">Reported</th>
-                  <th className="p-4 font-semibold text-gray-600">Severity (AI)</th>
-                  <th className="p-4 font-semibold text-gray-600">Location</th>
-                  <th className="p-4 font-semibold text-gray-600">Status</th>
-                  <th className="p-4 font-semibold text-gray-600">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {hazards.map((hazard) => (
-                  <tr key={hazard.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="p-4 text-gray-500">#{hazard.id}</td>
-                    <td className="p-4 text-sm text-gray-600">
-                      {new Date(hazard.reported_at).toLocaleString()}
-                    </td>
-                    <td className="p-4">{getSeverityBadge(hazard.severity)}</td>
-                    <td className="p-4 text-sm text-gray-500">
-                      {hazard.latitude.toFixed(4)}, {hazard.longitude.toFixed(4)}
-                    </td>
-                    <td className="p-4">
-                      <span className={`flex items-center gap-1 text-sm ${
-                        hazard.status === 'Resolved' ? 'text-green-600' : 
-                        hazard.status === 'In Progress' ? 'text-amber-600' : 'text-gray-600'
-                      }`}>
-                        {hazard.status === 'Resolved' ? <CheckCircle size={14} /> : <Clock size={14} />}
-                        {hazard.status}
-                      </span>
-                    </td>
-                    <td className="p-4 space-x-2 flex">
-                      <button 
-                        onClick={() => updateStatus(hazard.id, 'In Progress')}
-                        disabled={hazard.status === 'In Progress' || hazard.status === 'Resolved'}
-                        className="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-md font-medium hover:bg-amber-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Dispatch
-                      </button>
-                      <button 
-                        onClick={() => updateStatus(hazard.id, 'Resolved')}
-                        disabled={hazard.status === 'Resolved'}
-                        className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-md font-medium hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      >
-                        Resolve
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {hazards.length === 0 && (
+          <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left whitespace-nowrap">
+                <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <td colSpan={6} className="p-8 text-center text-gray-500">
-                      No hazards reported yet.
-                    </td>
+                    <th className="p-4 font-semibold text-gray-600 text-sm">ID</th>
+                    <th className="p-4 font-semibold text-gray-600 text-sm">Severity (1-10)</th>
+                    <th className="p-4 font-semibold text-gray-600 text-sm">Status</th>
+                    <th className="p-4 font-semibold text-gray-600 text-sm">Assignment</th>
+                    <th className="p-4 font-semibold text-gray-600 text-sm">Reporter</th>
+                    <th className="p-4 font-semibold text-gray-600 text-sm">Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {hazards.map((hazard) => (
+                    <tr key={hazard.id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="p-4 text-sm text-gray-500">#{hazard.id}</td>
+                      <td className="p-4">{getSeverityBadge(hazard.severity)}</td>
+                      <td className="p-4">
+                        <span className={`flex items-center gap-1 text-sm font-medium ${
+                          hazard.status === 'Resolved' ? 'text-green-600' : 
+                          hazard.status === 'In Progress' ? 'text-amber-600' : 'text-gray-600'
+                        }`}>
+                          {hazard.status === 'Resolved' ? <CheckCircle size={14} /> : <Clock size={14} />}
+                          {hazard.status}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        {hazard.assigned_worker ? (
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-800">{hazard.assigned_worker}</span>
+                            <span className="text-xs text-red-500 flex items-center gap-1"><Calendar size={10}/> {new Date(hazard.deadline).toLocaleDateString()}</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">Unassigned</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-sm text-gray-500">
+                        {hazard.reporter_name ? `@${hazard.reporter_name}` : 'Anonymous'}
+                        <div className="text-xs text-gray-400">{new Date(hazard.reported_at).toLocaleDateString()}</div>
+                      </td>
+                      <td className="p-4 space-x-2 flex">
+                        <button 
+                          onClick={() => openAssignModal(hazard.id)}
+                          disabled={hazard.status === 'Resolved'}
+                          className="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-md font-medium hover:bg-amber-200 disabled:opacity-50 transition-colors"
+                        >
+                          {hazard.status === 'In Progress' ? 'Reassign' : 'Dispatch'}
+                        </button>
+                        <button 
+                          onClick={() => markResolved(hazard.id)}
+                          disabled={hazard.status === 'Resolved' || hazard.status === 'Reported'}
+                          className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-md font-medium hover:bg-green-200 disabled:opacity-50 transition-colors"
+                        >
+                          Resolve
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
-          <div className="h-[80vh] rounded-xl overflow-hidden shadow-md border border-gray-200 relative z-0">
+          <div className="h-[75vh] max-w-7xl mx-auto rounded-xl overflow-hidden shadow-md border border-gray-200 relative z-0">
             <AdminMapComponent hazards={hazards} />
           </div>
         )}
