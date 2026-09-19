@@ -29,7 +29,7 @@ export default function CommuterPage() {
   const [routeMode, setRouteMode] = useState(false);
   const [destination, setDestination] = useState<{lat: number, lng: number} | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
-  const [routeSafety, setRouteSafety] = useState<{score: number, hazards: number, critical: number} | null>(null);
+  const [routeSafety, setRouteSafety] = useState<{safetyScore: number, hazardsCount: number, criticalHazards: number} | null>(null);
   const [isRouting, setIsRouting] = useState(false);
 
   useEffect(() => {
@@ -365,15 +365,15 @@ export default function CommuterPage() {
               <div className="bg-white p-4 rounded-lg shadow-sm border mt-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-semibold text-gray-600">Safety Score:</span>
-                  <span className={`text-xl font-bold ${routeSafety.score > 70 ? 'text-green-500' : routeSafety.score > 40 ? 'text-amber-500' : 'text-red-500'}`}>
-                    {routeSafety.score.toFixed(0)}/100
+                  <span className={`text-xl font-bold ${routeSafety.safetyScore > 70 ? 'text-green-500' : routeSafety.safetyScore > 40 ? 'text-amber-500' : 'text-red-500'}`}>
+                    {routeSafety.safetyScore.toFixed(0)}/100
                   </span>
                 </div>
                 <div className="space-y-1 mt-3">
-                  <p className="text-xs text-gray-500">Total Hazards on Route: <strong className="text-gray-800">{routeSafety.hazards}</strong></p>
-                  <p className="text-xs text-gray-500">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.critical}</strong></p>
+                  <p className="text-xs text-gray-500">Total Hazards on Route: <strong className="text-gray-800">{routeSafety.hazardsCount}</strong></p>
+                  <p className="text-xs text-gray-500">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.criticalHazards}</strong></p>
                 </div>
-                {routeSafety.score < 50 && (
+                {routeSafety.safetyScore < 50 && (
                   <div className="mt-3 bg-red-50 p-2 rounded text-xs text-red-700 border border-red-200">
                     Warning: This route passes through highly hazardous zones. Proceed with extreme caution.
                   </div>
