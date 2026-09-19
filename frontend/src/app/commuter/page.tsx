@@ -302,10 +302,16 @@ export default function CommuterPage() {
                   <input 
                     type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload}
                     className="hidden" id="camera-input"
+                    disabled={!location}
                   />
-                  <label htmlFor="camera-input" className="flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                    {photo ? <CheckCircle className="text-green-500" /> : <Camera className="text-gray-400" />}
-                    <span className="text-sm font-medium text-gray-600">{photo ? 'Photo Captured' : 'Open Camera'}</span>
+                  <label 
+                    htmlFor="camera-input" 
+                    className={`flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100'}`}
+                  >
+                    {photo ? <CheckCircle className="text-green-500" /> : <Camera className={!location ? "text-gray-300" : "text-gray-400"} />}
+                    <span className="text-sm font-medium text-gray-600">
+                      {!location ? 'Waiting for GPS lock...' : photo ? 'Photo Captured' : 'Open Camera'}
+                    </span>
                   </label>
                 </div>
               </div>
