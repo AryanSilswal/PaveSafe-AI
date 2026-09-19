@@ -153,11 +153,14 @@ export default function CommuterPage() {
     setIsRouting(true);
 
     try {
-      // 1. Fetch Route from public OSRM server
-      const osrmRes = await axios.get(`https://router.project-osrm.org/route/v1/driving/${location.lng},${location.lat};${latlng.lng},${latlng.lat}?geometries=geojson`);
-      if (osrmRes.data.routes.length === 0) throw new Error("No route found");
+      // 1. Fetch Route from public OSRM server (using fetch instead of axios to avoid sending global Auth header)
+      const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${location.lng},${location.lat};${latlng.lng},${latlng.lat}?geometries=geojson`);
+      if (!osrmRes.ok) throw new Error("Failed to fetch route from OSRM");
+      const osrmData = await osrmRes.json();
       
-      const coords = osrmRes.data.routes[0].geometry.coordinates;
+      if (!osrmData.routes || osrmData.routes.length === 0) throw new Error("No route found");
+      
+      const coords = osrmData.routes[0].geometry.coordinates;
       // OSRM returns [lon, lat], Leaflet expects [lat, lon] for drawing
       const leafletCoords = coords.map((c: any[]) => [c[1], c[0]]);
       setRouteCoordinates(leafletCoords);
