@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Camera, AlertTriangle, CheckCircle, Navigation, Bell, LogOut, MapPin, Search } from 'lucide-react';
+import { Camera, AlertTriangle, CheckCircle, Navigation, Bell, LogOut, MapPin, Search, Lock } from 'lucide-react';
 import axios from 'axios';
 
 const CommuterMapComponent = dynamic(() => import('../../components/CommuterMapComponent'), { ssr: false });
