@@ -27,7 +27,9 @@ export default function CommuterPage() {
 
   // Route Planning State
   const [routeMode, setRouteMode] = useState(false);
-  const [destination, setDestination] = useState<{lat: number, lng: number} | null>(null);
+  const [routeStart, setRouteStart] = useState<{lat: number, lng: number} | null>(null);
+  const [routeEnd, setRouteEnd] = useState<{lat: number, lng: number} | null>(null);
+  const [selectingPoint, setSelectingPoint] = useState<'start' | 'end'>('end');
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [routeSafety, setRouteSafety] = useState<{safetyScore: number, hazardsCount: number, criticalHazards: number} | null>(null);
   const [isRouting, setIsRouting] = useState(false);
@@ -47,6 +49,8 @@ export default function CommuterPage() {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
         setLocation({ lat: position.coords.latitude, lng: position.coords.longitude });
+        // Set default route start to GPS location if not already set
+        setRouteStart(prev => prev || { lat: position.coords.latitude, lng: position.coords.longitude });
       }, (err) => {
         console.error("GPS Error:", err);
       }, { enableHighAccuracy: true });
@@ -147,14 +151,11 @@ export default function CommuterPage() {
     }
   };
 
-  const handleMapClick = async (latlng: {lat: number, lng: number}) => {
-    if (!routeMode || !location) return;
-    setDestination(latlng);
+  const calculateRoute = async (start: {lat: number, lng: number}, end: {lat: number, lng: number}) => {
     setIsRouting(true);
-
     try {
-      // 1. Fetch Route from public OSRM server (using fetch instead of axios to avoid sending global Auth header)
-      const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${location.lng},${location.lat};${latlng.lng},${latlng.lat}?geometries=geojson`);
+      // 1. Fetch Route from public OSRM server
+      const osrmRes = await fetch(`https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?geometries=geojson`);
       if (!osrmRes.ok) throw new Error("Failed to fetch route from OSRM");
       const osrmData = await osrmRes.json();
       
@@ -173,6 +174,19 @@ export default function CommuterPage() {
       alert('Failed to calculate route.');
     } finally {
       setIsRouting(false);
+    }
+  };
+
+  const handleMapClick = async (latlng: {lat: number, lng: number}) => {
+    if (!routeMode) return;
+
+    if (selectingPoint === 'start') {
+      setRouteStart(latlng);
+      setSelectingPoint('end'); // Auto switch back to end
+      if (routeEnd) calculateRoute(latlng, routeEnd);
+    } else {
+      setRouteEnd(latlng);
+      if (routeStart) calculateRoute(routeStart, latlng);
     }
   };
 
@@ -353,13 +367,40 @@ export default function CommuterPage() {
           </div>
         ) : (
           // SAFE ROUTE UI
-          <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex-1">
+          <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex-1 flex flex-col">
             <h3 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
               <MapPin size={18} /> Plan Safe Route
             </h3>
-            <p className="text-xs text-purple-600 mb-4">Click anywhere on the map to set your destination and calculate route safety.</p>
             
-            {isRouting && <p className="text-sm text-purple-600 animate-pulse">Calculating route...</p>}
+            <div className="space-y-3 mb-4 mt-2">
+              <div 
+                className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                onClick={() => setSelectingPoint('start')}
+              >
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Start Point</div>
+                <div className="text-sm font-medium text-gray-800 flex items-center justify-between">
+                  {routeStart ? (routeStart.lat === location?.lat && routeStart.lng === location?.lng ? 'Current GPS Location' : 'Custom Map Location') : 'Select Start Point'}
+                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-md">Change</span>
+                </div>
+              </div>
+
+              <div 
+                className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
+                onClick={() => setSelectingPoint('end')}
+              >
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Destination</div>
+                <div className="text-sm font-medium text-gray-800 flex items-center justify-between">
+                  {routeEnd ? 'Selected on Map' : 'Click map to choose...'}
+                  <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-md">Change</span>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-purple-600 mb-4 bg-purple-100 p-2 rounded-md italic">
+              {selectingPoint === 'start' ? 'Click anywhere on the map to set your Custom Start Point.' : 'Click anywhere on the map to set your Destination.'}
+            </p>
+            
+            {isRouting && <p className="text-sm text-purple-600 animate-pulse font-medium text-center">Calculating route safety...</p>}
             
             {routeSafety && !isRouting && (
               <div className="bg-white p-4 rounded-lg shadow-sm border mt-4">

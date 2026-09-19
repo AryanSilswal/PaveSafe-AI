@@ -44,7 +44,7 @@ const createIcon = (severity: number) => {
   });
 };
 
-export default function CommuterMapComponent({ hazards, location, routeCoordinates, onMapClick, destination }: { hazards: any[], location: {lat: number, lng: number} | null, routeCoordinates?: [number, number][], onMapClick?: (latlng: {lat: number, lng: number}) => void, destination?: {lat: number, lng: number} | null }) {
+export default function CommuterMapComponent({ hazards, location, routeCoordinates, onMapClick, routeStart, routeEnd, routeMode }: { hazards: any[], location: {lat: number, lng: number} | null, routeCoordinates?: [number, number][], onMapClick?: (latlng: {lat: number, lng: number}) => void, routeStart?: {lat: number, lng: number} | null, routeEnd?: {lat: number, lng: number} | null, routeMode?: boolean }) {
   useEffect(() => {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
@@ -74,7 +74,9 @@ export default function CommuterMapComponent({ hazards, location, routeCoordinat
           />
         </LayersControl.BaseLayer>
       </LayersControl>
-      <LocationUpdater location={location} />
+      
+      {/* Only fly to location if we are NOT in routing mode (so it doesn't interrupt zooming) */}
+      {!routeMode && <LocationUpdater location={location} />}
       {onMapClick && <MapClickListener onMapClick={onMapClick} />}
       
       {/* Route Line */}
@@ -82,10 +84,25 @@ export default function CommuterMapComponent({ hazards, location, routeCoordinat
         <Polyline positions={routeCoordinates} color="#3b82f6" weight={5} opacity={0.7} />
       )}
 
-      {/* Destination Marker */}
-      {destination && (
+      {/* Start Route Marker */}
+      {routeStart && (
         <Marker 
-          position={[destination.lat, destination.lng]}
+          position={[routeStart.lat, routeStart.lng]}
+          icon={L.divIcon({
+            className: 'start-location',
+            html: '<div style="background-color: #3b82f6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></div>',
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })}
+        >
+          <Popup>Route Start</Popup>
+        </Marker>
+      )}
+
+      {/* Destination Marker */}
+      {routeEnd && (
+        <Marker 
+          position={[routeEnd.lat, routeEnd.lng]}
           icon={L.divIcon({
             className: 'dest-location',
             html: '<div style="background-color: #8b5cf6; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(139, 92, 246, 0.8);"></div>',
@@ -97,18 +114,18 @@ export default function CommuterMapComponent({ hazards, location, routeCoordinat
         </Marker>
       )}
 
-      {/* Current User Location Marker */}
-      {location && (
+      {/* Current User Location Marker (only if not hidden by routeStart) */}
+      {location && (!routeStart || location.lat !== routeStart.lat || location.lng !== routeStart.lng) && (
         <Marker 
           position={[location.lat, location.lng]}
           icon={L.divIcon({
             className: 'user-location',
-            html: '<div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></div>',
+            html: '<div style="background-color: #22c55e; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);"></div>',
             iconSize: [16, 16],
             iconAnchor: [8, 8]
           })}
         >
-          <Popup>You are here</Popup>
+          <Popup>Current GPS Location</Popup>
         </Marker>
       )}
 
