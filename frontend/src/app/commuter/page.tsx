@@ -30,6 +30,14 @@ export default function CommuterPage() {
   const [routeStart, setRouteStart] = useState<{lat: number, lng: number} | null>(null);
   const [routeEnd, setRouteEnd] = useState<{lat: number, lng: number} | null>(null);
   const [selectingPoint, setSelectingPoint] = useState<'start' | 'end'>('end');
+  
+  // Search State
+  const [startSearchQuery, setStartSearchQuery] = useState('');
+  const [endSearchQuery, setEndSearchQuery] = useState('');
+  const [startResults, setStartResults] = useState<any[]>([]);
+  const [endResults, setEndResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState<'start' | 'end' | null>(null);
+
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [routeSafety, setRouteSafety] = useState<{safetyScore: number, hazardsCount: number, criticalHazards: number} | null>(null);
   const [isRouting, setIsRouting] = useState(false);
@@ -174,6 +182,40 @@ export default function CommuterPage() {
       alert('Failed to calculate route.');
     } finally {
       setIsRouting(false);
+    }
+  };
+
+  const searchAddress = async (query: string, type: 'start' | 'end') => {
+    if (!query.trim()) return;
+    setIsSearching(type);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', Delhi, India')}&format=json&limit=4`, {
+        headers: { 'User-Agent': 'PaveSafe-AI-Prototype/1.0' }
+      });
+      const data = await res.json();
+      if (type === 'start') setStartResults(data);
+      else setEndResults(data);
+    } catch (error) {
+      console.error('Search failed', error);
+    } finally {
+      setIsSearching(null);
+    }
+  };
+
+  const selectSearchResult = (result: any, type: 'start' | 'end') => {
+    const latlng = { lat: parseFloat(result.lat), lng: parseFloat(result.lon) };
+    const shortName = result.display_name.split(',').slice(0, 2).join(',');
+
+    if (type === 'start') {
+      setRouteStart(latlng);
+      setStartSearchQuery(shortName);
+      setStartResults([]);
+      if (routeEnd) calculateRoute(latlng, routeEnd);
+    } else {
+      setRouteEnd(latlng);
+      setEndSearchQuery(shortName);
+      setEndResults([]);
+      if (routeStart) calculateRoute(routeStart, latlng);
     }
   };
 
@@ -373,25 +415,77 @@ export default function CommuterPage() {
             </h3>
             
             <div className="space-y-3 mb-4 mt-2">
-              <div 
-                className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-                onClick={() => setSelectingPoint('start')}
-              >
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Start Point</div>
-                <div className="text-sm font-medium text-gray-800 flex items-center justify-between">
-                  {routeStart ? (routeStart.lat === location?.lat && routeStart.lng === location?.lng ? 'Current GPS Location' : 'Custom Map Location') : 'Select Start Point'}
-                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-md">Change</span>
+              <div className={`p-3 rounded-lg border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Start Point</div>
+                  <button onClick={() => setSelectingPoint('start')} className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
+                    {selectingPoint === 'start' ? 'Click Map Now' : 'Select on Map'}
+                  </button>
+                </div>
+                <div className="relative">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={routeStart ? (routeStart.lat === location?.lat ? 'Current GPS Location' : 'Custom Map Location') : 'Type address...'}
+                      value={startSearchQuery}
+                      onChange={(e) => setStartSearchQuery(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(startSearchQuery, 'start'); }}
+                      className="w-full p-2 border rounded text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button 
+                      onClick={() => searchAddress(startSearchQuery, 'start')}
+                      disabled={isSearching === 'start'}
+                      className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                  {startResults.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-y-auto">
+                      {startResults.map(res => (
+                        <div key={res.place_id} onClick={() => selectSearchResult(res, 'start')} className="p-2 hover:bg-gray-100 text-sm cursor-pointer border-b last:border-b-0 truncate">
+                          {res.display_name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div 
-                className={`p-3 rounded-lg border-2 cursor-pointer transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}
-                onClick={() => setSelectingPoint('end')}
-              >
-                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Destination</div>
-                <div className="text-sm font-medium text-gray-800 flex items-center justify-between">
-                  {routeEnd ? 'Selected on Map' : 'Click map to choose...'}
-                  <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded-md">Change</span>
+              <div className={`p-3 rounded-lg border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white'}`}>
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Destination</div>
+                  <button onClick={() => setSelectingPoint('end')} className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200">
+                    {selectingPoint === 'end' ? 'Click Map Now' : 'Select on Map'}
+                  </button>
+                </div>
+                <div className="relative">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={routeEnd ? 'Selected on Map' : 'Type destination...'}
+                      value={endSearchQuery}
+                      onChange={(e) => setEndSearchQuery(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(endSearchQuery, 'end'); }}
+                      className="w-full p-2 border rounded text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                    />
+                    <button 
+                      onClick={() => searchAddress(endSearchQuery, 'end')}
+                      disabled={isSearching === 'end'}
+                      className="bg-purple-600 text-white p-2 rounded hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      <Search size={16} />
+                    </button>
+                  </div>
+                  {endResults.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-y-auto">
+                      {endResults.map(res => (
+                        <div key={res.place_id} onClick={() => selectSearchResult(res, 'end')} className="p-2 hover:bg-gray-100 text-sm cursor-pointer border-b last:border-b-0 truncate">
+                          {res.display_name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
