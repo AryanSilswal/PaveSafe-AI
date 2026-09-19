@@ -289,46 +289,64 @@ export default function CommuterPage() {
         {/* Dynamic Content Area */}
         {!routeMode ? (
           // REPORT HAZARD UI
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex-1">
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex-1 flex flex-col">
             <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
               <AlertTriangle size={18} className="text-amber-500" />
               Report New Hazard
             </h3>
             
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm text-gray-600">Take a photo of the pothole</label>
-                <div className="relative">
-                  <input 
-                    type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload}
-                    className="hidden" id="camera-input"
-                    disabled={!location}
-                  />
-                  <label 
-                    htmlFor="camera-input" 
-                    className={`flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100'}`}
-                  >
-                    {photo ? <CheckCircle className="text-green-500" /> : <Camera className={!location ? "text-gray-300" : "text-gray-400"} />}
-                    <span className="text-sm font-medium text-gray-600">
-                      {!location ? 'Waiting for GPS lock...' : photo ? 'Photo Captured' : 'Open Camera'}
-                    </span>
-                  </label>
+            {!user ? (
+              <div className="flex flex-col items-center justify-center flex-1 text-center bg-white rounded-lg border p-6 space-y-4 shadow-sm">
+                <div className="bg-blue-100 p-3 rounded-full">
+                  <Lock className="text-blue-500" size={24} />
                 </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">Authentication Required</h4>
+                  <p className="text-sm text-gray-500 mt-1">For security and to earn Safe Citizen Points, please sign in before reporting a hazard.</p>
+                </div>
+                <button 
+                  onClick={() => setShowLogin(true)}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Sign In
+                </button>
               </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm text-gray-600">Take a photo of the pothole</label>
+                  <div className="relative">
+                    <input 
+                      type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload}
+                      className="hidden" id="camera-input"
+                      disabled={!location}
+                    />
+                    <label 
+                      htmlFor="camera-input" 
+                      className={`flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100'}`}
+                    >
+                      {photo ? <CheckCircle className="text-green-500" /> : <Camera className={!location ? "text-gray-300" : "text-gray-400"} />}
+                      <span className="text-sm font-medium text-gray-600">
+                        {!location ? 'Waiting for GPS lock...' : photo ? 'Photo Captured' : 'Open Camera'}
+                      </span>
+                    </label>
+                  </div>
+                </div>
 
-              {location ? (
-                <p className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> GPS Locked</p>
-              ) : (
-                <p className="text-xs text-red-500 flex items-center gap-1"><AlertTriangle size={12} /> Waiting for GPS...</p>
-              )}
+                {location ? (
+                  <p className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> GPS Locked</p>
+                ) : (
+                  <p className="text-xs text-red-500 flex items-center gap-1"><AlertTriangle size={12} /> Waiting for GPS...</p>
+                )}
 
-              <button 
-                onClick={submitReport} disabled={!photo || !location || isReporting}
-                className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
-              >
-                {isReporting ? 'Analyzing & Reporting...' : 'Submit Report'}
-              </button>
-            </div>
+                <button 
+                  onClick={submitReport} disabled={!photo || !location || isReporting}
+                  className="w-full py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                >
+                  {isReporting ? 'Analyzing & Reporting...' : 'Submit Report'}
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           // SAFE ROUTE UI

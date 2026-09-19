@@ -254,8 +254,15 @@ export default function AdminDashboard() {
                         )}
                       </td>
                       <td className="p-4 text-sm text-gray-500">
-                        {hazard.reporter_name ? `@${hazard.reporter_name}` : 'Anonymous'}
-                        <div className="text-xs text-gray-400">{new Date(hazard.reported_at).toLocaleDateString()}</div>
+                        {hazard.reporter_id ? (
+                          <>
+                            <span className="font-semibold">@{hazard.reporter_name}</span>
+                            <div className="text-xs text-gray-400">UID: {hazard.reporter_id}</div>
+                          </>
+                        ) : (
+                          <span className="italic">Anonymous (System)</span>
+                        )}
+                        <div className="text-xs text-gray-400 mt-1">{new Date(hazard.reported_at).toLocaleDateString()}</div>
                       </td>
                       <td className="p-4 space-x-2 flex">
                         <button 

@@ -160,7 +160,7 @@ app.get('/api/hazards', async (req, res) => {
   try {
     const query = `
       SELECT 
-        h.id, h.severity, h.status, h.reported_at, h.assigned_worker, h.deadline,
+        h.id, h.severity, h.status, h.reported_at, h.assigned_worker, h.deadline, h.reporter_id,
         ST_Y(h.location::geometry) as latitude, 
         ST_X(h.location::geometry) as longitude,
         u.username as reporter_name
