@@ -432,7 +432,9 @@ export default function CommuterPage() {
           location={location} 
           routeCoordinates={routeCoordinates}
           onMapClick={handleMapClick}
-          destination={destination}
+          routeStart={routeStart}
+          routeEnd={routeEnd}
+          routeMode={routeMode}
         />
       </div>
     </div>
