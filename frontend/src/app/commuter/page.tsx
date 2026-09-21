@@ -250,7 +250,7 @@ export default function CommuterPage() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="h-screen w-full flex flex-col md:flex-row font-sans">
+    <div className="h-[100dvh] w-full flex flex-col md:flex-row font-sans overflow-hidden">
       
       {/* Login Modal */}
       {showLogin && (
@@ -284,7 +284,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className="w-full md:w-96 bg-white shadow-xl z-10 flex flex-col p-6 overflow-y-auto space-y-6">
+      <div className="w-full md:w-96 bg-white shadow-xl z-10 flex flex-col p-4 md:p-6 overflow-y-auto space-y-5 shrink-0 max-h-[55vh] md:max-h-none border-b-2 md:border-b-0 border-gray-200">
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">

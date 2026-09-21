@@ -200,12 +200,12 @@ export default function AdminDashboard() {
       )}
 
       {/* Navbar */}
-      <header className="bg-slate-900 text-white p-4 flex justify-between items-center shadow-md z-10">
+      <header className="bg-slate-900 text-white p-4 flex flex-col md:flex-row justify-between items-center shadow-md z-10 gap-4">
         <div className="flex items-center gap-2">
           <ShieldCheck className="text-blue-400" size={28}/>
           <h1 className="text-xl font-bold">PaveSafe Admin</h1>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center">
           <button 
             onClick={exportCSV}
             className="flex items-center gap-2 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 px-4 py-1.5 rounded-lg font-medium transition-colors border border-emerald-500/30 text-sm"
