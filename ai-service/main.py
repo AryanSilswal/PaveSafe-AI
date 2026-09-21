@@ -17,6 +17,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def health_check():
+    return {"status": "PaveSafe AI Microservice is running online!"}
+
 # Load the trained YOLOv8 model once at startup
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
 
