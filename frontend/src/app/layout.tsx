@@ -32,3 +32,4 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
+// Triggering Vercel rebuild
