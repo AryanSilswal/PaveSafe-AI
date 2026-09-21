@@ -50,7 +50,7 @@ def S0_quality_gate(img):
     roi = gray[int(h*0.4):h, :]
     laplacian_var = cv2.Laplacian(roi, cv2.CV_64F).var()
     passed = laplacian_var > 100.0  # Threshold to be tuned
-    return {"passed": bool(passed), "blur_laplacian_var": round(laplacian_var, 1), "roi": "lower_60pct"}
+    return {"passed": bool(passed), "blur_laplacian_var": float(round(laplacian_var, 1)), "roi": "lower_60pct"}
 
 def S1_detect(img):
     """Instance masks + class + confidence using trained YOLOv8-seg"""
@@ -173,6 +173,10 @@ async def analyze_image(file: UploadFile = File(...)):
         depth = S4_estimate_depth(img, detection.get("mock_mask"))
         pavement_severity = S5_severity(geometry, depth)
         commuter_risk = S6_vehicle_risk(geometry, depth)
+
+        # Remove numpy arrays from the dicts before JSON serialization
+        if "mock_mask" in detection:
+            del detection["mock_mask"]
 
         # Build the exact JSON schema required by the Roadmap (Week 8)
         response_schema = {
