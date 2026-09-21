@@ -31,17 +31,24 @@ def S0_quality_gate(img):
 
 def S1_detect(img):
     """Instance masks + class + confidence"""
-    # MOCK: Replace with YOLOv8s-seg inference
-    return {"class": "pothole", "confidence": 0.93, "mask_rle": "mock_rle_data"}
+    # MOCK: Replace with YOLOv8s-seg inference when ready
+    # For now, we simulate a detected pothole mask in the center of the image
+    h, w = img.shape[:2]
+    center_x, center_y = w // 2, h // 2
+    radius = min(w, h) // 6
+    
+    # Create a dummy mask image (white circle in center)
+    mask = np.zeros((h, w), dtype=np.uint8)
+    cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+    
+    return {"class": "pothole", "confidence": 0.93, "mock_mask": mask}
 
 def S2_extract_rim(mask):
     """Outer contour (rim only, floor excluded)"""
-    # MOCK
     return {"status": "success"}
 
 def S3_resolve_scale(rim, metadata):
     """(W_m, A_m2, σ_W, σ_A) | relative-only"""
-    # MOCK: Assuming AR Mode A or EXIF Mode B
     return {
         "scale_source": metadata.get("scale_source", "none"),
         "camera_height_m": 1.08, "camera_height_sigma_m": 0.05,
@@ -51,12 +58,42 @@ def S3_resolve_scale(rim, metadata):
     }
 
 def S4_estimate_depth(img, mask):
-    """Ordinal posterior over {shallow, moderate, deep, unknown}"""
-    # MOCK: Depth Anything V2 fallback
+    """Ordinal posterior over {shallow, moderate, deep, unknown} using Shadow-Crescent Contrast"""
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    if mask is None or np.count_nonzero(mask) == 0:
+        return {"ordinal": "unknown", "posterior": {"shallow": 0, "moderate": 0, "deep": 0}, "source": "shadow_contrast"}
+        
+    # 1. Interior Intensity (Inside the pothole)
+    interior_mean = cv2.mean(gray, mask=mask)[0]
+    
+    # 2. Exterior Intensity (The surrounding road)
+    # Dilate the mask to get an annulus (ring) around the pothole
+    kernel = np.ones((15, 15), np.uint8)
+    dilated_mask = cv2.dilate(mask, kernel, iterations=2)
+    exterior_mask = cv2.subtract(dilated_mask, mask) # Ring around the pothole
+    
+    exterior_mean = cv2.mean(gray, mask=exterior_mask)[0]
+    
+    # 3. Calculate Contrast Ratio
+    # Darker interior = deeper pothole
+    ratio = interior_mean / (exterior_mean + 1e-5)
+    
+    if ratio < 0.65:
+        ordinal = "deep"
+        post = {"shallow": 0.05, "moderate": 0.15, "deep": 0.80}
+    elif ratio < 0.85:
+        ordinal = "moderate"
+        post = {"shallow": 0.10, "moderate": 0.70, "deep": 0.20}
+    else:
+        ordinal = "shallow"
+        post = {"shallow": 0.85, "moderate": 0.10, "deep": 0.05}
+        
     return {
-        "ordinal": "moderate", 
-        "posterior": {"shallow": 0.11, "moderate": 0.68, "deep": 0.21},
-        "source": "shadow_heuristic_mock"
+        "ordinal": ordinal,
+        "posterior": post,
+        "source": "shadow_crescent_contrast",
+        "debug_metrics": {"interior_intensity": round(interior_mean, 1), "exterior_intensity": round(exterior_mean, 1), "ratio": round(ratio, 2)}
     }
 
 def S5_severity(geometry, depth):
@@ -89,13 +126,13 @@ async def analyze_image(file: UploadFile = File(...)):
         # Execution of the 6-Stage Pure Function Contract
         quality = S0_quality_gate(img)
         detection = S1_detect(img)
-        rim = S2_extract_rim(detection.get("mask_rle"))
+        rim = S2_extract_rim(detection.get("mock_mask"))
         
         # In future, metadata comes from frontend request (ARCore or EXIF)
         mock_metadata = {"scale_source": "ar_measured"}
         geometry = S3_resolve_scale(rim, mock_metadata)
         
-        depth = S4_estimate_depth(img, detection.get("mask_rle"))
+        depth = S4_estimate_depth(img, detection.get("mock_mask"))
         pavement_severity = S5_severity(geometry, depth)
         commuter_risk = S6_vehicle_risk(geometry, depth)
 
