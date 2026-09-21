@@ -117,7 +117,8 @@ export default function CommuterPage() {
   async function fetchHazards() {
     try {
       const res = await axios.get(`${API_URL}/api/hazards`);
-      setHazards(res.data);
+      // Hide resolved potholes from the commuter map
+      setHazards(res.data.filter((h: any) => h.status !== 'Resolved'));
     } catch (error) {
       console.error('Error fetching hazards:', error);
     }
