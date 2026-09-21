@@ -1,9 +1,11 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from ultralytics import YOLO
 import cv2
 import numpy as np
 import io
 import uuid
+import os
 
 app = FastAPI(title="PaveSafe AI Microservice - v2 Academic")
 
@@ -14,6 +16,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Load the trained YOLOv8 model once at startup
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
+try:
+    model = YOLO(MODEL_PATH)
+except Exception as e:
+    model = None
+    print(f"WARNING: Could not load YOLO model at {MODEL_PATH}: {e}")
 
 # ==========================================
 # 6-STAGE PIPELINE (As per Week 8 Roadmap)
@@ -30,18 +40,33 @@ def S0_quality_gate(img):
     return {"passed": bool(passed), "blur_laplacian_var": round(laplacian_var, 1), "roi": "lower_60pct"}
 
 def S1_detect(img):
-    """Instance masks + class + confidence"""
-    # MOCK: Replace with YOLOv8s-seg inference when ready
-    # For now, we simulate a detected pothole mask in the center of the image
+    """Instance masks + class + confidence using trained YOLOv8-seg"""
+    if model is None:
+        raise Exception("YOLO model not loaded. Missing best.pt?")
+
+    # Run YOLO inference
+    results = model(img, verbose=False)
+    
+    # Check if anything was detected and if masks are available
+    if len(results) == 0 or len(results[0].boxes) == 0 or results[0].masks is None:
+        return {"class": "none", "confidence": 0.0, "mock_mask": None}
+        
+    # Get the highest confidence detection (first item)
+    first_box = results[0].boxes[0]
+    confidence = float(first_box.conf[0])
+    class_name = model.names[int(first_box.cls[0])]
+    
+    # Extract the mask tensor and convert to numpy array
+    mask_tensor = results[0].masks.data[0].cpu().numpy()
+    
+    # Resize the mask back to the original image dimensions
     h, w = img.shape[:2]
-    center_x, center_y = w // 2, h // 2
-    radius = min(w, h) // 6
+    mask_resized = cv2.resize(mask_tensor, (w, h), interpolation=cv2.INTER_NEAREST)
     
-    # Create a dummy mask image (white circle in center)
-    mask = np.zeros((h, w), dtype=np.uint8)
-    cv2.circle(mask, (center_x, center_y), radius, 255, -1)
+    # Convert to standard 8-bit binary mask (0 and 255)
+    mask_binary = (mask_resized * 255).astype(np.uint8)
     
-    return {"class": "pothole", "confidence": 0.93, "mock_mask": mask}
+    return {"class": class_name, "confidence": round(confidence, 3), "mock_mask": mask_binary}
 
 def S2_extract_rim(mask):
     """Outer contour (rim only, floor excluded)"""
