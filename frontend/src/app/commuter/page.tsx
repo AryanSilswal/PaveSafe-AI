@@ -78,50 +78,50 @@ export default function CommuterPage() {
     }
   }, [user]);
 
-  const fetchLeaderboard = async () => {
+  async function fetchLeaderboard() {
     try {
       const res = await axios.get(`${API_URL}/api/users/leaderboard`);
       setLeaderboard(res.data);
     } catch (e) {
       console.error(e);
     }
-  };
+  }
 
-  const fetchUserProfile = async () => {
+  async function fetchUserProfile() {
     try {
       const res = await axios.get(`${API_URL}/api/auth/me`);
       setUser(res.data);
     } catch (e) {
       handleLogout(); // Invalid token
     }
-  };
+  }
 
-  const fetchNotifications = async () => {
+  async function fetchNotifications() {
     try {
       const res = await axios.get(`${API_URL}/api/notifications`);
       setNotifications(res.data);
     } catch (e) {
       console.error(e);
     }
-  };
+  }
 
-  const markNotificationsRead = async () => {
+  async function markNotificationsRead() {
     try {
       await axios.put(`${API_URL}/api/notifications/read`);
       setNotifications(prev => prev.map(n => ({...n, is_read: true})));
     } catch (e) {
       console.error(e);
     }
-  };
+  }
 
-  const fetchHazards = async () => {
+  async function fetchHazards() {
     try {
       const res = await axios.get(`${API_URL}/api/hazards`);
       setHazards(res.data);
     } catch (error) {
       console.error('Error fetching hazards:', error);
     }
-  };
+  }
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
