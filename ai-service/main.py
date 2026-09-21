@@ -19,6 +19,19 @@ app.add_middleware(
 
 # Load the trained YOLOv8 model once at startup
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "best.pt")
+
+try:
+    import torch
+    import ultralytics
+    # Fix for PyTorch 2.6+ weights_only=True security update
+    if hasattr(torch.serialization, 'add_safe_globals'):
+        torch.serialization.add_safe_globals([ultralytics.nn.tasks.SegmentationModel])
+        # Sometimes it also needs these base types depending on the ultralytics version
+        from ultralytics.yolo.utils import IterableSimpleNamespace
+        torch.serialization.add_safe_globals([IterableSimpleNamespace])
+except Exception as e:
+    pass # Older PyTorch versions don't need this, or imports might differ
+
 try:
     model = YOLO(MODEL_PATH)
 except Exception as e:
