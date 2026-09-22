@@ -250,7 +250,7 @@ export default function CommuterPage() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="min-h-screen w-full flex flex-col lg:flex-row font-sans">
+    <div className="w-full flex flex-col lg:flex-row font-sans">
       
       {/* Login Modal */}
       {showLogin && (
@@ -284,7 +284,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className="w-full lg:w-96 bg-white shadow-xl z-10 flex flex-col p-5 lg:p-6 space-y-6 shrink-0 border-b-2 lg:border-b-0 border-gray-200">
+      <div className="w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex flex-col p-5 lg:p-6 space-y-6 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto">
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
@@ -558,7 +558,7 @@ export default function CommuterPage() {
       </div>
 
       {/* Map Area */}
-      <div className="flex-1 relative z-0 min-h-[60vh] lg:min-h-screen">
+      <div className="w-full h-[100dvh] lg:flex-1 relative z-0">
         <CommuterMapComponent 
           hazards={hazards} 
           location={location} 
