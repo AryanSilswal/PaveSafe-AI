@@ -450,7 +450,7 @@ export default function AdminDashboard() {
                         <td className="p-4 space-x-2 flex flex-wrap gap-y-2 items-center">
                             {hazard.image_url && (
                               <button 
-                                onClick={() => setPreviewImage(hazard.image_url)}
+                                onClick={() => { alert(Opening image: \); setPreviewImage(hazard.image_url); }}
                                 className="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
                               >
                                 Photo
