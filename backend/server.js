@@ -227,9 +227,6 @@ app.post('/api/hazards/:id/upvote', authenticateToken, async (req, res) => {
       res.status(500).json({ error: 'Server error' }); 
     }
   });
-    res.json(result.rows[0]);
-  } catch { res.status(500).json({ error: 'Server error' }); }
-});
 
 app.put('/api/hazards/:id/status', authenticateToken, requireAdmin, async (req, res) => {
   try {
