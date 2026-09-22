@@ -85,6 +85,20 @@ export default function AdminDashboard() {
     setShowAssignModal(true);
   };
 
+  
+  const rejectHazard = async (id: number) => {
+    if (!confirm('Are you sure you want to reject this report? This will deduct 20 points from the user. 5 consecutive rejections will ban them for 2 months.')) return;
+    try {
+      await axios.put(`${API_URL}/api/hazards/${id}/status`, { 
+        status: 'Rejected'
+      }, { headers: { Authorization: `Bearer ${token}` }});
+      fetchHazards();
+    } catch (error) {
+      console.error('Error rejecting:', error);
+      alert('Failed to reject hazard.');
+    }
+  };
+
   const submitAssignment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedHazard) return;
@@ -109,7 +123,7 @@ export default function AdminDashboard() {
 
   const markResolved = async (id: number) => {
     try {
-      await axios.put(`${API_URL}/api/hazards/${id}/status`, { status: 'Resolved' });
+      await axios.put(`${API_URL}/api/hazards/${id}/status`, { status: 'Resolved' }, { headers: { Authorization: `Bearer ${token}` }});
       fetchHazards();
     } catch (error) {
       console.error('Error resolving:', error);
@@ -287,22 +301,38 @@ export default function AdminDashboard() {
                         )}
                         <div className="text-xs text-gray-400 mt-1">{new Date(hazard.reported_at).toLocaleDateString()}</div>
                       </td>
-                      <td className="p-4 space-x-2 flex">
-                        <button 
-                          onClick={() => openAssignModal(hazard.id)}
-                          disabled={hazard.status === 'Resolved'}
-                          className="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-md font-medium hover:bg-amber-200 disabled:opacity-50 transition-colors"
-                        >
-                          {hazard.status === 'In Progress' ? 'Reassign' : 'Dispatch'}
-                        </button>
-                        <button 
-                          onClick={() => markResolved(hazard.id)}
-                          disabled={hazard.status === 'Resolved' || hazard.status === 'Reported'}
-                          className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-md font-medium hover:bg-green-200 disabled:opacity-50 transition-colors"
-                        >
-                          Resolve
-                        </button>
-                      </td>
+                      <td className="p-4 space-x-2 flex flex-wrap gap-y-2 items-center">
+                          {hazard.image_url && (
+                            <button 
+                              onClick={() => window.open(hazard.image_url, '_blank')}
+                              className="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                            >
+                              Photo
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => openAssignModal(hazard.id)}
+                            disabled={hazard.status === 'Resolved' || hazard.status === 'Rejected'}
+                            className="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-md font-medium hover:bg-amber-200 disabled:opacity-50 transition-colors"
+                          >
+                            {hazard.status === 'In Progress' ? 'Reassign' : 'Dispatch'}
+                          </button>
+                          <button 
+                            onClick={() => markResolved(hazard.id)}
+                            disabled={hazard.status === 'Resolved' || hazard.status === 'Reported' || hazard.status === 'Rejected'}
+                            className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-md font-medium hover:bg-green-200 disabled:opacity-50 transition-colors"
+                          >
+                            Resolve
+                          </button>
+                          {hazard.status === 'Reported' && (
+                            <button 
+                              onClick={() => rejectHazard(hazard.id)}
+                              className="text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded-md font-medium hover:bg-red-200 transition-colors"
+                            >
+                              Reject
+                            </button>
+                          )}
+                        </td>
                     </tr>
                   ))}
                 </tbody>

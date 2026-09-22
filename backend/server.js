@@ -6,6 +6,13 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
+const { v2: cloudinary } = require('cloudinary');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -13,9 +20,27 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Run migrations on boot to ensure schema exists
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
+pool.query(`
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS banned_until TIMESTAMP;
+  ALTER TABLE users ADD COLUMN IF NOT EXISTS recent_reports JSONB DEFAULT '[]';
+  ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_url TEXT;
+  ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_public_id TEXT;
+`).catch(e => console.error('Migration error:', e));
+
+const uploadToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    if (!process.env.CLOUDINARY_CLOUD_NAME) return resolve({secure_url: null, public_id: null});
+    const stream = cloudinary.uploader.upload_stream({ folder: 'pavesafe' }, (error, result) => {
+      if (error) return reject(error);
+      resolve(result);
+    });
+    stream.end(buffer);
+  });
+};
 
 const upload = multer({ storage: multer.memoryStorage() });
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
@@ -63,6 +88,9 @@ app.post('/api/auth/login', async (req, res) => {
     
     const user = result.rows[0];
     const validPassword = await bcrypt.compare(password, user.password_hash);
+      if (validPassword && user.banned_until && new Date(user.banned_until) > new Date()) {
+        return res.status(403).json({ error: `Account suspended until ${new Date(user.banned_until).toLocaleDateString()} due to repeated invalid reports.` });
+      }
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -149,11 +177,15 @@ app.post('/api/hazards/report', authenticateToken, upload.single('image'), async
     const reporter_id = req.user ? req.user.id : null;
 
     const query = `
-      INSERT INTO hazards (location, severity, status, reporter_id, reported_at)
-      VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4326), $3, 'Reported', $4, NOW())
+      INSERT INTO hazards (location, severity, status, reporter_id, reported_at, image_url, image_public_id)
+      VALUES (ST_SetSRID(ST_MakePoint($1, $2), 4326), $3, 'Reported', $4, NOW(), $5, $6)
       RETURNING id, severity, status, reported_at;
     `;
-    const result = await pool.query(query, [parseFloat(longitude), parseFloat(latitude), severity, reporter_id]);
+    let cloudUpload = { secure_url: null, public_id: null };
+      if (image && image.buffer) {
+        try { cloudUpload = await uploadToCloudinary(image.buffer); } catch(e) { console.error('Cloudinary error', e); }
+      }
+      const result = await pool.query(query, [parseFloat(longitude), parseFloat(latitude), severity, reporter_id, cloudUpload.secure_url, cloudUpload.public_id]);
     
     // Reward points for reporting if logged in
     if (reporter_id) {
@@ -171,7 +203,7 @@ app.get('/api/hazards', async (req, res) => {
   try {
     const query = `
       SELECT 
-        h.id, h.severity, h.status, h.reported_at, h.assigned_worker, h.deadline, h.reporter_id,
+        h.id, h.severity, h.status, h.reported_at, h.assigned_worker, h.deadline, h.reporter_id, h.image_url,
         ST_Y(h.location::geometry) as latitude, 
         ST_X(h.location::geometry) as longitude,
         u.username as reporter_name
@@ -192,12 +224,12 @@ app.put('/api/hazards/:id/status', authenticateToken, requireAdmin, async (req, 
     const { id } = req.params;
     const { status, assigned_worker, deadline } = req.body;
     
-    if (!['Reported', 'In Progress', 'Resolved'].includes(status)) {
+    if (!['Reported', 'In Progress', 'Resolved', 'Rejected'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
     // Get current hazard to check reporter
-    const currentHazard = await pool.query('SELECT reporter_id, status FROM hazards WHERE id = $1', [id]);
+    const currentHazard = await pool.query('SELECT reporter_id, status, image_public_id FROM hazards WHERE id = $1', [id]);
     if (currentHazard.rowCount === 0) return res.status(404).json({ error: 'Hazard not found' });
     
     const hazardData = currentHazard.rows[0];
@@ -211,7 +243,42 @@ app.put('/api/hazards/:id/status', authenticateToken, requireAdmin, async (req, 
     const result = await pool.query(query, [status, assigned_worker, deadline, id]);
     
     // Notifications and Gamification
-    if (status === 'Resolved' && hazardData.status !== 'Resolved' && hazardData.reporter_id) {
+    
+      // Clean up Cloudinary Image on Dispatch or Reject
+      if (['In Progress', 'Rejected'].includes(status) && hazardData.image_public_id) {
+        try {
+          await cloudinary.uploader.destroy(hazardData.image_public_id);
+          await pool.query('UPDATE hazards SET image_url = NULL, image_public_id = NULL WHERE id = $1', [id]);
+        } catch(e) { console.error('Cloudinary delete error', e); }
+      }
+
+      // Handling Approval Window
+      if ((status === 'In Progress' || status === 'Resolved') && hazardData.status === 'Reported' && hazardData.reporter_id) {
+         const uRes = await pool.query('SELECT recent_reports FROM users WHERE id = $1', [hazardData.reporter_id]);
+         let recent = uRes.rows[0].recent_reports || [];
+         recent.push('approved');
+         if (recent.length > 10) recent.shift();
+         await pool.query('UPDATE users SET recent_reports = $1 WHERE id = $2', [JSON.stringify(recent), hazardData.reporter_id]);
+      }
+
+      // Handling Rejection
+      if (status === 'Rejected' && hazardData.status !== 'Rejected' && hazardData.reporter_id) {
+         const uRes = await pool.query('SELECT points, recent_reports FROM users WHERE id = $1', [hazardData.reporter_id]);
+         let recent = uRes.rows[0].recent_reports || [];
+         recent.push('rejected');
+         if (recent.length > 10) recent.shift();
+         
+         const rejectCount = recent.filter(r => r === 'rejected').length;
+         let banQuery = '';
+         if (rejectCount >= 5) {
+            banQuery = `, banned_until = NOW() + INTERVAL '2 months'`;
+         }
+         
+         await pool.query(`UPDATE users SET points = GREATEST(0, points - 20), recent_reports = $1 ${banQuery} WHERE id = $2`, [JSON.stringify(recent), hazardData.reporter_id]);
+         await pool.query('INSERT INTO notifications (user_id, message) VALUES ($1, $2)', [hazardData.reporter_id, 'Your recent hazard report was rejected. 20 points have been deducted.']);
+      }
+
+      if (status === 'Resolved' && hazardData.status !== 'Resolved' && hazardData.reporter_id) {
       await pool.query('UPDATE users SET points = points + 20 WHERE id = $1', [hazardData.reporter_id]);
       await pool.query(
         'INSERT INTO notifications (user_id, message) VALUES ($1, $2)',
