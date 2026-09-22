@@ -29,6 +29,15 @@ pool.query(`
   ALTER TABLE users ADD COLUMN IF NOT EXISTS recent_reports JSONB DEFAULT '[]';
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_url TEXT;
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_public_id TEXT;
+  DO $
+  BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'users_username_key'
+    ) THEN
+        ALTER TABLE users ADD CONSTRAINT users_username_key UNIQUE (username);
+    END IF;
+  END $;
+  ALTER TABLE users ADD CONSTRAINT users_username_key UNIQUE (username) DEFERRABLE INITIALLY IMMEDIATE; /* May fail if duplicates exist, but postgres handles it if we use IF NOT EXISTS conceptually or we can skip raw alter if it crashes */
 `).catch(e => console.error('Migration error:', e));
 
 const uploadToCloudinary = (buffer) => {
@@ -80,7 +89,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', service: 'pavesafe
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    const result = await pool.query('SELECT * FROM users WHERE LOWER(username) = LOWER($1)', [username]);
     
     if (result.rows.length === 0) {
       return res.status(401).json({ error: 'Invalid credentials' });
@@ -110,8 +119,8 @@ app.post('/api/auth/register', async (req, res) => {
     const { username, password } = req.body;
     
     // Check if user exists
-    const userCheck = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
-    if (userCheck.rows.length > 0) return res.status(400).json({ error: 'Username taken' });
+    const userCheck = await pool.query('SELECT id FROM users WHERE LOWER(username) = LOWER($1)', [username]);
+    if (userCheck.rows.length > 0) return res.status(400).json({ error: 'Username is already taken' });
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);

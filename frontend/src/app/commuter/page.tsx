@@ -34,7 +34,40 @@ export default function CommuterPage() {
 
   // Notification State
   const [notifications, setNotifications] = useState<any[]>([]);
+  
   const [showNotifications, setShowNotifications] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const autoCloseTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const startAutoClose = () => {
+    if (autoCloseTimer.current) clearTimeout(autoCloseTimer.current);
+    autoCloseTimer.current = setTimeout(() => {
+      setShowNotifications(false);
+    }, 3000);
+  };
+
+  const cancelAutoClose = () => {
+    if (autoCloseTimer.current) clearTimeout(autoCloseTimer.current);
+  };
+
+  useEffect(() => {
+    if (showNotifications) {
+      startAutoClose();
+      
+      const handleClickOutside = (event: MouseEvent) => {
+        if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+          setShowNotifications(false);
+        }
+      };
+      
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        if (autoCloseTimer.current) clearTimeout(autoCloseTimer.current);
+      };
+    }
+  }, [showNotifications]);
+
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
   // Route Planning State
