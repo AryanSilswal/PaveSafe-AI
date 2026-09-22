@@ -483,6 +483,7 @@ const openAssignModal = (id: number) => {
                       <th onClick={() => requestSort('id')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">ID {getSortIcon('id')}</th>
                       <th onClick={() => requestSort('severity')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Severity {getSortIcon('severity')}</th>
                       <th onClick={() => requestSort('status')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Status {getSortIcon('status')}</th>
+                      <th onClick={() => requestSort('confirmation_count')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Upvotes {getSortIcon('confirmation_count')}</th>
                       <th onClick={() => requestSort('assignment')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Assignment {getSortIcon('assignment')}</th>
                       <th onClick={() => requestSort('reporter')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Reporter {getSortIcon('reporter')}</th>
                       <th onClick={() => requestSort('reported_at')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Date {getSortIcon('reported_at')}</th>

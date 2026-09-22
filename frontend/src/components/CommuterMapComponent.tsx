@@ -127,13 +127,14 @@ function MinimapInset({ location }: { location: { lat: number; lng: number } | n
 
 // ── Main Export ───────────────────────────────────────────────────────────────
 export default function CommuterMapComponent({
-  hazards, location, routeCoordinates, onMapClick, routeStart, routeEnd, routeMode
+  hazards, location, routeCoordinates, onMapClick, routeStart, routeEnd, routeMode, onUpvote
 }: {
   hazards: any[], location: { lat: number; lng: number } | null,
   routeCoordinates?: [number, number][], onMapClick?: (latlng: { lat: number; lng: number }) => void,
   routeStart?: { lat: number; lng: number } | null,
   routeEnd?: { lat: number; lng: number } | null,
-  routeMode?: boolean
+  routeMode?: boolean,
+  onUpvote?: (id: number) => void
 }) {
   const [radiusKm, setRadiusKm] = useState<number | null>(null);
 
@@ -152,7 +153,7 @@ export default function CommuterMapComponent({
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
       {/* Radius Ring Toggle */}
       {location && (
-        <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 1000, background: 'white', borderRadius: 8, padding: '6px 10px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', border: '1px solid #d1d5db', display: 'flex', gap: 4 }}>
+        <div style={{ position: 'absolute', top: 85, left: 12, zIndex: 1000, background: 'white', borderRadius: 8, padding: '6px 10px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', border: '1px solid #d1d5db', display: 'flex', gap: 4 }}>
           {radiusOptions.map(r => (
             <button key={r ?? 'off'} onClick={() => setRadiusKm(r)}
               style={{ padding: '3px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
@@ -242,6 +243,9 @@ export default function CommuterMapComponent({
                     style={{ display: 'block', marginTop: 8, textAlign: 'center', padding: '5px', background: '#3b82f6', color: 'white', borderRadius: 6, fontSize: 11, textDecoration: 'none', fontWeight: 'bold' }}>
                     🗺 Open in Google Maps
                   </a>
+                  <button onClick={() => onUpvote && onUpvote(hazard.id)} style={{ display: 'block', width: '100%', marginTop: 6, padding: '5px', background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 11, fontWeight: 'bold', cursor: 'pointer' }}>
+                    👍 Verify Hazard ({hazard.confirmation_count || 0})
+                  </button>
                 </div>
               </Popup>
             </Marker>

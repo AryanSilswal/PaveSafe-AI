@@ -96,8 +96,8 @@ function ClusterLayer({ hazards, statusFilter, onUpvote }: { hazards: any[], sta
             </div>
             <div style="font-size:11px;color:#9ca3af;margin-bottom:8px;">${new Date(h.reported_at).toLocaleDateString()}</div>
             <div style="display:flex;gap:6px;">
-              <a href="https://maps.google.com/?q=${h.latitude},${h.longitude}" target="_blank" style="flex:1;text-align:center;padding:5px;background:#3b82f6;color:white;border-radius:6px;font-size:11px;text-decoration:none;font-weight:bold;">🗺 Google Maps</a>
-              <button onclick="window._upvote(${h.id})" style="flex:1;padding:5px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:6px;font-size:11px;cursor:pointer;font-weight:bold;">👍 ${h.confirmation_count || 0}</button>
+              <a href="https://maps.google.com/?q=${h.latitude},${h.longitude}" target="_blank" style="flex:1; width:100%;text-align:center;padding:5px;background:#3b82f6;color:white;border-radius:6px;font-size:11px;text-decoration:none;font-weight:bold;">🗺 Google Maps</a>
+              
             </div>
           </div>
         `);
