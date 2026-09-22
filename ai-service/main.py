@@ -106,11 +106,11 @@ def web_interface():
                     const tr = document.createElement('tr');
                     tr.id = rowId;
                     tr.className = 'border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors';
-                    tr.innerHTML = \`
+                    tr.innerHTML = `
                         <td class="px-6 py-4">
-                            <img src="\${previewUrl}" class="w-16 h-16 object-cover rounded shadow-lg border border-slate-600">
+                            <img src="${previewUrl}" class="w-16 h-16 object-cover rounded shadow-lg border border-slate-600">
                         </td>
-                        <td class="px-6 py-4 font-medium text-white max-w-[200px] truncate" title="\${file.name}">\${file.name}</td>
+                        <td class="px-6 py-4 font-medium text-white max-w-[200px] truncate" title="${file.name}">${file.name}</td>
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-2">
                                 <div class="w-4 h-4 border-2 border-slate-500 rounded-full border-t-blue-500 animate-spin"></div>
@@ -121,7 +121,7 @@ def web_interface():
                             <div class="h-2 bg-slate-700 rounded w-1/2 animate-pulse mb-2"></div>
                             <div class="h-2 bg-slate-700 rounded w-1/3 animate-pulse"></div>
                         </td>
-                    \`;
+                    `;
                     
                     // Prepend so newest is on top
                     resultsTable.insertBefore(tr, resultsTable.firstChild);
@@ -146,7 +146,7 @@ def web_interface():
                         
                         let severityBadge = '';
                         if(data.error) {
-                            severityBadge = \`<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-0.5 rounded text-xs font-bold">ERROR</span>\`;
+                            severityBadge = `<span class="bg-red-500/20 text-red-400 border border-red-500/30 px-2.5 py-0.5 rounded text-xs font-bold">ERROR</span>`;
                         } else {
                             const sev = data.severity;
                             const colors = {
@@ -157,29 +157,29 @@ def web_interface():
                                 5: 'bg-purple-500/20 text-purple-400 border-purple-500/30'
                             };
                             const c = colors[sev] || 'bg-slate-500/20 text-slate-400 border-slate-500/30';
-                            severityBadge = \`<span class="px-2.5 py-0.5 rounded text-xs font-bold border \${c}">Severity \${sev}</span>\`;
+                            severityBadge = `<span class="px-2.5 py-0.5 rounded text-xs font-bold border ${c}">Severity ${sev}</span>`;
                         }
                         
-                        row.innerHTML = \`
+                        row.innerHTML = `
                             <td class="px-6 py-4">
-                                <img src="\${previewUrl}" class="w-16 h-16 object-cover rounded shadow-lg border border-slate-600">
+                                <img src="${previewUrl}" class="w-16 h-16 object-cover rounded shadow-lg border border-slate-600">
                             </td>
-                            <td class="px-6 py-4 font-medium text-white max-w-[200px] truncate" title="\${file.name}">\${file.name}</td>
-                            <td class="px-6 py-4">\${severityBadge}</td>
+                            <td class="px-6 py-4 font-medium text-white max-w-[200px] truncate" title="${file.name}">${file.name}</td>
+                            <td class="px-6 py-4">${severityBadge}</td>
                             <td class="px-6 py-4">
-                                <pre class="bg-slate-900 p-3 rounded border border-slate-800 text-[10px] text-emerald-400 overflow-x-auto max-w-[400px] max-h-[120px] overflow-y-auto">\${JSON.stringify(data, null, 2)}</pre>
+                                <pre class="bg-slate-900 p-3 rounded border border-slate-800 text-[10px] text-emerald-400 overflow-x-auto max-w-[400px] max-h-[120px] overflow-y-auto">${JSON.stringify(data, null, 2)}</pre>
                             </td>
-                        \`;
+                        `;
                     } catch (err) {
                         const row = document.getElementById(rowId);
-                        row.innerHTML = \`
+                        row.innerHTML = `
                             <td class="px-6 py-4">
-                                <img src="\${previewUrl}" class="w-16 h-16 object-cover rounded opacity-50">
+                                <img src="${previewUrl}" class="w-16 h-16 object-cover rounded opacity-50">
                             </td>
-                            <td class="px-6 py-4 text-red-400">\${file.name}</td>
+                            <td class="px-6 py-4 text-red-400">${file.name}</td>
                             <td class="px-6 py-4"><span class="bg-red-900 text-red-300 px-2 rounded text-xs">TIMEOUT</span></td>
-                            <td class="px-6 py-4 text-red-400 text-xs">Request failed: \${err.message}</td>
-                        \`;
+                            <td class="px-6 py-4 text-red-400 text-xs">Request failed: ${err.message}</td>
+                        `;
                     }
                 }
                 
