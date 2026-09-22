@@ -40,12 +40,12 @@ pool.query(`
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_url TEXT;
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_public_id TEXT;
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS confirmation_count INTEGER DEFAULT 0;
-  DO $
+  DO $$
   BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'users_username_key') THEN
       ALTER TABLE users ADD CONSTRAINT users_username_key UNIQUE (username);
     END IF;
-  END $;
+  END $$;
 `).catch(e => console.error('Migration error:', e));
 
 const uploadToCloudinary = (buffer) => new Promise((resolve, reject) => {
