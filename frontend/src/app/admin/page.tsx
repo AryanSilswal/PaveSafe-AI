@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock, User, Calendar, AlertTriangle, Download, ArrowUp, ArrowDown, Filter, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -37,6 +38,10 @@ export default function AdminDashboard() {
   // Export Modal
   const [showExportModal, setShowExportModal] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  // Analytics
+  const [trendData, setTrendData] = useState<any[]>([]);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('pavesafe_admin_token');
@@ -92,7 +97,41 @@ export default function AdminDashboard() {
     }
   };
 
-  const openAssignModal = (id: number) => {
+  
+
+  const fetchTrend = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/hazards/trend`);
+      const byDate: Record<string, any> = {};
+      for (const row of res.data) {
+        const d = row.date;
+        if (!byDate[d]) byDate[d] = { date: d };
+        const tier = row.severity >= 8 ? 'Critical' : row.severity >= 4 ? 'Moderate' : 'Low';
+        byDate[d][tier] = (byDate[d][tier] || 0) + parseInt(row.count);
+      }
+      setTrendData(Object.values(byDate));
+    } catch {}
+  };
+
+  const chronicHotspots = useMemo(() => {
+    const hotspots: any[] = [];
+    for (let i = 0; i < hazards.length; i++) {
+      const cluster = hazards.filter((h, j) => {
+        if (j === i) return false;
+        const R = 6371e3;
+        const dLat = (h.latitude - hazards[i].latitude) * Math.PI / 180;
+        const dLon = (h.longitude - hazards[i].longitude) * Math.PI / 180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(hazards[i].latitude * Math.PI/180) * Math.cos(h.latitude * Math.PI/180) * Math.sin(dLon/2)**2;
+        const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return dist < 100;
+      });
+      if (cluster.length >= 1 && !hotspots.find(h => Math.abs(h.latitude - hazards[i].latitude) < 0.001)) {
+        hotspots.push({ ...hazards[i], clusterCount: cluster.length + 1 });
+      }
+    }
+    return hotspots.sort((a, b) => b.clusterCount - a.clusterCount).slice(0, 5);
+  }, [hazards]);
+const openAssignModal = (id: number) => {
     setSelectedHazard(id);
     setShowAssignModal(true);
   };
@@ -358,6 +397,48 @@ export default function AdminDashboard() {
             <div className="bg-green-100 p-3 rounded-full"><CheckCircle className="text-green-600" /></div>
           </div>
         </div>
+
+        {/* Analytics Panel */}
+        {showAnalytics && (
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <h3 className="font-bold text-gray-700 text-sm mb-3 flex items-center gap-2">📈 Severity Trend (Last 30 Days)</h3>
+              {trendData.length === 0 ? (
+                <p className="text-sm text-gray-400 italic text-center py-8">No data yet. Reports will appear here.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={trendData}>
+                    <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(5)} />
+                    <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                    <Tooltip />
+                    <Legend iconSize={10} wrapperStyle={{ fontSize: 11 }} />
+                    <Line type="monotone" dataKey="Critical" stroke="#ef4444" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="Moderate" stroke="#f59e0b" strokeWidth={2} dot={false} />
+                    <Line type="monotone" dataKey="Low" stroke="#22c55e" strokeWidth={2} dot={false} />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <h3 className="font-bold text-gray-700 text-sm mb-3 flex items-center gap-2">🔁 Chronic Problem Areas</h3>
+              {chronicHotspots.length === 0 ? (
+                <p className="text-sm text-gray-400 italic text-center py-8">No recurring hotspots detected yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {chronicHotspots.map((h: any) => (
+                    <div key={h.id} className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded-lg">
+                      <div>
+                        <span className="text-sm font-semibold text-gray-800">Near #{h.id}</span>
+                        <span className="text-xs text-gray-400 ml-2">{parseFloat(h.latitude).toFixed(4)}, {parseFloat(h.longitude).toFixed(4)}</span>
+                      </div>
+                      <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full">{h.clusterCount} reports</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {viewMode === 'list' ? (
           <div className="max-w-7xl mx-auto flex flex-col gap-4">
