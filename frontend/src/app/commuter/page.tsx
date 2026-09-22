@@ -284,7 +284,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className="w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex flex-col p-5 lg:p-6 space-y-6 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto">
+      <div className="w-full lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex flex-col p-5 lg:p-6 space-y-6 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto">
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
@@ -292,7 +292,7 @@ export default function CommuterPage() {
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <Navigation className="text-blue-600" /> PaveSafe
             </h2>
-            <p className="text-xs text-gray-500 mt-1">Commuter Module</p>
+            <p className="text-sm text-gray-500 mt-1">Commuter Module</p>
           </div>
           
           <div className="relative">
@@ -320,11 +320,11 @@ export default function CommuterPage() {
               <div className="absolute right-0 top-12 w-64 bg-white shadow-lg border rounded-lg overflow-hidden z-50">
                 <div className="p-3 bg-gray-50 border-b font-semibold text-sm">Notifications</div>
                 <div className="max-h-60 overflow-y-auto">
-                  {notifications.length === 0 ? <p className="p-4 text-xs text-gray-500">No notifications.</p> : null}
+                  {notifications.length === 0 ? <p className="p-4 text-sm text-gray-500">No notifications.</p> : null}
                   {notifications.map(n => (
                     <div key={n.id} className="p-3 border-b text-sm text-gray-700 bg-green-50">
                       {n.message}
-                      <div className="text-xs text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString()}</div>
+                      <div className="text-sm text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString()}</div>
                     </div>
                   ))}
                 </div>
@@ -339,7 +339,7 @@ export default function CommuterPage() {
             <p className="text-sm opacity-80">Hello, {user.username}</p>
             <div className="flex justify-between items-end mt-1">
               <h3 className="text-2xl font-bold">{user.points} <span className="text-sm font-normal opacity-80">pts</span></h3>
-              <span className="text-xs font-semibold bg-white/20 px-2 py-1 rounded-full">Safe Citizen</span>
+              <span className="text-sm font-semibold bg-white/20 px-2 py-1 rounded-full">Safe Citizen</span>
             </div>
           </div>
         )}
@@ -408,9 +408,9 @@ export default function CommuterPage() {
                 </div>
 
                 {location ? (
-                  <p className="text-xs text-green-600 flex items-center gap-1"><CheckCircle size={12} /> GPS Locked</p>
+                  <p className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={12} /> GPS Locked</p>
                 ) : (
-                  <p className="text-xs text-red-500 flex items-center gap-1"><AlertTriangle size={12} /> Waiting for GPS...</p>
+                  <p className="text-sm text-red-500 flex items-center gap-1"><AlertTriangle size={12} /> Waiting for GPS...</p>
                 )}
 
                 <button 
@@ -432,8 +432,8 @@ export default function CommuterPage() {
             <div className="space-y-3 mb-4 mt-2">
               <div className={`p-3 rounded-lg border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
                 <div className="flex justify-between items-center mb-2">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Start Point</div>
-                  <button onClick={() => setSelectingPoint('start')} className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
+                  <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Start Point</div>
+                  <button onClick={() => setSelectingPoint('start')} className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
                     {selectingPoint === 'start' ? 'Click Map Now' : 'Select on Map'}
                   </button>
                 </div>
@@ -469,8 +469,8 @@ export default function CommuterPage() {
 
               <div className={`p-3 rounded-lg border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white'}`}>
                 <div className="flex justify-between items-center mb-2">
-                  <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Destination</div>
-                  <button onClick={() => setSelectingPoint('end')} className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200">
+                  <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Destination</div>
+                  <button onClick={() => setSelectingPoint('end')} className="text-sm bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200">
                     {selectingPoint === 'end' ? 'Click Map Now' : 'Select on Map'}
                   </button>
                 </div>
@@ -505,7 +505,7 @@ export default function CommuterPage() {
               </div>
             </div>
 
-            <p className="text-xs text-purple-600 mb-4 bg-purple-100 p-2 rounded-md italic">
+            <p className="text-sm text-purple-600 mb-4 bg-purple-100 p-2 rounded-md italic">
               {selectingPoint === 'start' ? 'Click anywhere on the map to set your Custom Start Point.' : 'Click anywhere on the map to set your Destination.'}
             </p>
             
@@ -520,11 +520,11 @@ export default function CommuterPage() {
                   </span>
                 </div>
                 <div className="space-y-1 mt-3">
-                  <p className="text-xs text-gray-500">Total Hazards on Route: <strong className="text-gray-800">{routeSafety.hazardsCount}</strong></p>
-                  <p className="text-xs text-gray-500">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.criticalHazards}</strong></p>
+                  <p className="text-sm text-gray-500">Total Hazards on Route: <strong className="text-gray-800">{routeSafety.hazardsCount}</strong></p>
+                  <p className="text-sm text-gray-500">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.criticalHazards}</strong></p>
                 </div>
                 {routeSafety.safetyScore < 50 && (
-                  <div className="mt-3 bg-red-50 p-2 rounded text-xs text-red-700 border border-red-200">
+                  <div className="mt-3 bg-red-50 p-2 rounded text-sm text-red-700 border border-red-200">
                     Warning: This route passes through highly hazardous zones. Proceed with extreme caution.
                   </div>
                 )}
@@ -548,7 +548,7 @@ export default function CommuterPage() {
                     <span className="text-gray-500 font-bold w-4">{index + 1}.</span>
                     <span className="text-gray-800">@{u.username}</span>
                   </div>
-                  <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{u.points} pts</span>
+                  <span className="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{u.points} pts</span>
                 </div>
               ))
             )}
@@ -558,16 +558,22 @@ export default function CommuterPage() {
       </div>
 
       {/* Map Area */}
-      <div className="w-full h-[100dvh] lg:flex-1 relative z-0">
-        <CommuterMapComponent 
-          hazards={hazards} 
-          location={location} 
-          routeCoordinates={routeCoordinates}
-          onMapClick={handleMapClick}
-          routeStart={routeStart}
-          routeEnd={routeEnd}
-          routeMode={routeMode}
-        />
+      <div className="w-full h-[85vh] lg:h-[100dvh] lg:flex-1 relative z-0 flex flex-col">
+        {/* Mobile Scroll Handle */}
+        <div className="lg:hidden w-full bg-slate-800 text-blue-100 p-3 text-center text-sm font-semibold flex items-center justify-center gap-2 shadow-md z-10 select-none">
+          👆 Swipe here to scroll the page up 👆
+        </div>
+        <div className="flex-1 relative z-0">
+          <CommuterMapComponent 
+            hazards={hazards} 
+            location={location} 
+            routeCoordinates={routeCoordinates}
+            onMapClick={handleMapClick}
+            routeStart={routeStart}
+            routeEnd={routeEnd}
+            routeMode={routeMode}
+          />
+        </div>
       </div>
     </div>
   );
