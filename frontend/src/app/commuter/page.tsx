@@ -169,6 +169,16 @@ export default function CommuterPage() {
     }
   }
 
+  const handleUpvote = async (id: number) => {
+    if (!user) { alert('Please sign in to verify hazards.'); return; }
+    try {
+      const res = await axios.post(`${API_URL}/api/hazards/${id}/upvote`);
+      setHazards(prev => prev.map(h => h.id === id ? { ...h, confirmation_count: res.data.confirmation_count } : h));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   async function fetchHazards() {
     try {
       const res = await axios.get(`${API_URL}/api/hazards`);
@@ -882,6 +892,7 @@ export default function CommuterPage() {
             routeStart={routeStart}
             routeEnd={routeEnd}
             routeMode={routeMode}
+            onUpvote={handleUpvote}
           />
         </div>
       </div>

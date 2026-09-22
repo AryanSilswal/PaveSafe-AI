@@ -243,7 +243,7 @@ export default function CommuterMapComponent({
                     style={{ display: 'block', marginTop: 8, textAlign: 'center', padding: '5px', background: '#3b82f6', color: 'white', borderRadius: 6, fontSize: 11, textDecoration: 'none', fontWeight: 'bold' }}>
                     🗺 Open in Google Maps
                   </a>
-                  <button onClick={() => onUpvote && onUpvote(hazard.id)} style={{ display: 'block', width: '100%', marginTop: 6, padding: '5px', background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 11, fontWeight: 'bold', cursor: 'pointer' }}>
+                  <button onClick={(e) => { e.stopPropagation(); onUpvote && onUpvote(hazard.id); }} style={{ display: 'block', width: '100%', marginTop: 6, padding: '5px', background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 11, fontWeight: 'bold', cursor: 'pointer' }}>
                     👍 Verify Hazard ({hazard.confirmation_count || 0})
                   </button>
                 </div>

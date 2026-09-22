@@ -505,6 +505,7 @@ const openAssignModal = (id: number) => {
                             {hazard.status}
                           </span>
                         </td>
+                        <td className="p-4 font-semibold text-blue-600">👍 {hazard.confirmation_count || 0}</td>
                         <td className="p-4">
                           {hazard.assigned_worker ? (
                             <div className="flex flex-col">
