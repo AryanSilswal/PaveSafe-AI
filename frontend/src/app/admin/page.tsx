@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   
   // Export Modal
   const [showExportModal, setShowExportModal] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('pavesafe_admin_token');
@@ -268,6 +269,15 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       
+      
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+          <button onClick={() => setPreviewImage(null)} className="absolute top-4 right-4 text-white bg-black/50 p-2 rounded-full hover:bg-black/70"><X size={24}/></button>
+          <img src={previewImage} alt="Hazard Preview" className="max-w-full max-h-[90vh] rounded-lg shadow-2xl object-contain" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
+
       {/* Export Modal */}
       {showExportModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -440,7 +450,7 @@ export default function AdminDashboard() {
                         <td className="p-4 space-x-2 flex flex-wrap gap-y-2 items-center">
                             {hazard.image_url && (
                               <button 
-                                onClick={() => window.open(hazard.image_url, '_blank')}
+                                onClick={() => setPreviewImage(hazard.image_url)}
                                 className="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
                               >
                                 Photo
