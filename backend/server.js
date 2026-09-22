@@ -119,7 +119,7 @@ app.post('/api/auth/register', async (req, res) => {
     const { username, password } = req.body;
     
     // Check if user exists
-    const userCheck = await pool.query('SELECT id FROM users WHERE LOWER(username) = LOWER($1)', [username]);
+    const userCheck = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
     if (userCheck.rows.length > 0) return res.status(400).json({ error: 'Username is already taken' });
 
     const salt = await bcrypt.genSalt(10);
