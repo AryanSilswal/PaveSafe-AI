@@ -269,7 +269,7 @@ export default function CommuterPage() {
                 type="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)}
                 className="w-full border p-3 rounded-lg"
               />
-              <button type="submit" className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg">
+              <button type="submit" className="w-full bg-blue-600 text-white font-bold text-lg py-5 rounded-xl shadow-md">
                 {isRegistering ? 'Register' : 'Login'}
               </button>
             </form>
@@ -284,7 +284,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className="w-full lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex flex-col p-5 lg:p-6 space-y-6 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto">
+      <div className="w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto">
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
@@ -348,13 +348,13 @@ export default function CommuterPage() {
         <div className="flex bg-gray-100 rounded-lg p-1">
           <button 
             onClick={() => setRouteMode(false)}
-            className={`flex-1 py-2 text-sm font-semibold rounded-md ${!routeMode ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-4 text-base font-bold rounded-lg ${!routeMode ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}
           >
             Report Hazard
           </button>
           <button 
             onClick={() => setRouteMode(true)}
-            className={`flex-1 py-2 text-sm font-semibold rounded-md ${routeMode ? 'bg-white shadow-sm text-purple-600' : 'text-gray-500'}`}
+            className={`flex-1 py-4 text-base font-bold rounded-lg ${routeMode ? 'bg-white shadow-sm text-purple-600' : 'text-gray-500'}`}
           >
             Safe Routes
           </button>
@@ -363,8 +363,8 @@ export default function CommuterPage() {
         {/* Dynamic Content Area */}
         {!routeMode ? (
           // REPORT HAZARD UI
-          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex-1 flex flex-col">
-            <h3 className="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 flex-1 flex flex-col">
+            <h3 className="font-bold text-gray-800 text-lg mb-6 flex items-center gap-2">
               <AlertTriangle size={18} className="text-amber-500" />
               Report New Hazard
             </h3>
@@ -388,7 +388,7 @@ export default function CommuterPage() {
             ) : (
               <div className="space-y-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm text-gray-600">Take a photo of the pothole</label>
+                  <label className="text-base font-semibold text-gray-700 mb-2 block">Take a photo of the pothole</label>
                   <div className="relative">
                     <input 
                       type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload}
@@ -397,10 +397,10 @@ export default function CommuterPage() {
                     />
                     <label 
                       htmlFor="camera-input" 
-                      className={`flex items-center justify-center gap-2 w-full p-4 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100'}`}
+                      className={`flex items-center justify-center gap-2 w-full p-8 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100'}`}
                     >
                       {photo ? <CheckCircle className="text-green-500" /> : <Camera className={!location ? "text-gray-300" : "text-gray-400"} />}
-                      <span className="text-sm font-medium text-gray-600">
+                      <span className="text-base font-bold text-gray-600">
                         {!location ? 'Waiting for GPS lock...' : photo ? 'Photo Captured' : 'Open Camera'}
                       </span>
                     </label>
@@ -424,13 +424,13 @@ export default function CommuterPage() {
           </div>
         ) : (
           // SAFE ROUTE UI
-          <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 flex-1 flex flex-col">
+          <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100 flex-1 flex flex-col">
             <h3 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
               <MapPin size={18} /> Plan Safe Route
             </h3>
             
             <div className="space-y-3 mb-4 mt-2">
-              <div className={`p-3 rounded-lg border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Start Point</div>
                   <button onClick={() => setSelectingPoint('start')} className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
@@ -445,7 +445,7 @@ export default function CommuterPage() {
                       value={startSearchQuery}
                       onChange={(e) => setStartSearchQuery(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(startSearchQuery, 'start'); }}
-                      className="w-full p-2 border rounded text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-4 border rounded-lg text-base bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
                     />
                     <button 
                       onClick={() => searchAddress(startSearchQuery, 'start')}
@@ -467,7 +467,7 @@ export default function CommuterPage() {
                 </div>
               </div>
 
-              <div className={`p-3 rounded-lg border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white'}`}>
+              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white'}`}>
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Destination</div>
                   <button onClick={() => setSelectingPoint('end')} className="text-sm bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200">
@@ -482,7 +482,7 @@ export default function CommuterPage() {
                       value={endSearchQuery}
                       onChange={(e) => setEndSearchQuery(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(endSearchQuery, 'end'); }}
-                      className="w-full p-2 border rounded text-sm bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                      className="w-full p-4 border rounded-lg text-base bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500"
                     />
                     <button 
                       onClick={() => searchAddress(endSearchQuery, 'end')}
@@ -578,3 +578,4 @@ export default function CommuterPage() {
     </div>
   );
 }
+
