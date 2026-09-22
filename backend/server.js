@@ -40,6 +40,11 @@ pool.query(`
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_url TEXT;
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS image_public_id TEXT;
   ALTER TABLE hazards ADD COLUMN IF NOT EXISTS confirmation_count INTEGER DEFAULT 0;
+  CREATE TABLE IF NOT EXISTS hazard_upvotes (
+    hazard_id INTEGER REFERENCES hazards(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (hazard_id, user_id)
+  );
   DO $$
   BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'users_username_key') THEN
@@ -197,12 +202,31 @@ app.get('/api/hazards/trend', authenticateToken, requireAdmin, async (req, res) 
 });
 
 app.post('/api/hazards/:id/upvote', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query(
-      'UPDATE hazards SET confirmation_count = confirmation_count + 1 WHERE id = $1 RETURNING id, confirmation_count',
-      [req.params.id]
-    );
-    if (result.rowCount === 0) return res.status(404).json({ error: 'Hazard not found' });
+    try {
+      const hazardId = req.params.id;
+      const userId = req.user.id;
+      
+      const insertVote = await pool.query(
+        'INSERT INTO hazard_upvotes (hazard_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING 1',
+        [hazardId, userId]
+      );
+      
+      if (insertVote.rowCount === 0) {
+        return res.status(400).json({ error: 'You have already verified this hazard.' });
+      }
+
+      const result = await pool.query(
+        'UPDATE hazards SET confirmation_count = confirmation_count + 1 WHERE id = $1 RETURNING id, confirmation_count',
+        [hazardId]
+      );
+      
+      if (result.rowCount === 0) return res.status(404).json({ error: 'Hazard not found' });
+      res.json(result.rows[0]);
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ error: 'Server error' }); 
+    }
+  });
     res.json(result.rows[0]);
   } catch { res.status(500).json({ error: 'Server error' }); }
 });

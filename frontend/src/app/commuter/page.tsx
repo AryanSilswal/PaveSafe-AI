@@ -169,13 +169,18 @@ export default function CommuterPage() {
     }
   }
 
-  const handleUpvote = async (id: number) => {
+    const handleUpvote = async (id: number) => {
     if (!user) { alert('Please sign in to verify hazards.'); return; }
     try {
       const res = await axios.post(`${API_URL}/api/hazards/${id}/upvote`);
       setHazards(prev => prev.map(h => h.id === id ? { ...h, confirmation_count: res.data.confirmation_count } : h));
-    } catch (e) {
-      console.error(e);
+      alert('Hazard verified! Thank you.');
+    } catch (e: any) {
+      if (e.response && e.response.status === 400) {
+        alert('You have already verified this hazard!');
+      } else {
+        console.error(e);
+      }
     }
   };
 
