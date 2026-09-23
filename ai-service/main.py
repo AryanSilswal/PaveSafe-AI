@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 import cv2
+import gc
 import numpy as np
 import io
 import uuid
@@ -405,6 +406,16 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
         
         if img is None:
             return {"severity": 5, "error": "Could not decode image"}
+            
+        # OOM PROTECTION: Render Free Tier only has 512MB RAM.
+        # A raw 4K smartphone photo takes ~100MB of RAM uncompressed. Resize it immediately.
+        max_dim = 1024
+        if img.shape[0] > max_dim or img.shape[1] > max_dim:
+            scale = max_dim / max(img.shape[0], img.shape[1])
+            img = cv2.resize(img, (0,0), fx=scale, fy=scale)
+            
+        if img is None: # Dummy check to replace the one we consumed
+            return {"severity": 5, "error": "Could not decode image"}
 
         # Execution of the 6-Stage Pure Function Contract
         quality = S0_quality_gate(img)
@@ -458,6 +469,12 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
             # BACKWARD COMPATIBILITY for existing Node server (Requires 1-10 integer)
             "severity": final_severity
         }
+        
+        # Force garbage collection to free up memory before the next request
+        del img
+        del contents
+        del nparr
+        gc.collect()
         
         return response_schema
 
