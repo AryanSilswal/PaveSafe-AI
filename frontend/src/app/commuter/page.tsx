@@ -552,7 +552,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className="w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto">
+      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
@@ -898,6 +898,7 @@ export default function CommuterPage() {
             routeEnd={routeEnd}
             routeMode={routeMode}
             onUpvote={handleUpvote}
+            isDriveMode={isDriveMode}
           />
         </div>
       </div>
