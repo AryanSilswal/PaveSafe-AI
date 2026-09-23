@@ -149,7 +149,8 @@ export default function CommuterMapComponent({
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      {isDriveMode && <style>{.leaflet-control-container { display: none !important; }}</style>}\n      {/* Radius Ring Toggle */}
+      {isDriveMode && <style>{`.leaflet-control-container { display: none !important; }`}</style>}
+      {/* Radius Ring Toggle */}
       {!isDriveMode && location && (
         <div style={{ position: 'absolute', top: 85, left: 12, zIndex: 1000, background: 'white', borderRadius: 8, padding: '6px 10px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', border: '1px solid #d1d5db', display: 'flex', gap: 4 }}>
           {radiusOptions.map(r => (
