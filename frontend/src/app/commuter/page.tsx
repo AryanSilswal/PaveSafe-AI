@@ -828,7 +828,7 @@ export default function CommuterPage() {
       {/* Map Area */}
       <div className="w-full h-[85vh] lg:h-[100dvh] lg:flex-1 relative z-0 flex flex-col">
         {/* Mobile Scroll Handle */}
-        <div className="lg:hidden w-full bg-slate-800 text-blue-100 p-3 text-center text-sm font-semibold flex items-center justify-center gap-2 shadow-md z-10 select-none">
+        <div className={`lg:hidden w-full bg-slate-800 text-blue-100 p-3 text-center text-sm font-semibold flex items-center justify-center gap-2 shadow-md z-10 select-none ${isDriveMode ? 'hidden' : 'flex'}`}>
           👆 Swipe here to scroll the page up 👆
         </div>
         <div className="flex-1 relative z-0">

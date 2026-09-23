@@ -127,15 +127,13 @@ function MinimapInset({ location }: { location: { lat: number; lng: number } | n
 
 // ── Main Export ───────────────────────────────────────────────────────────────
 export default function CommuterMapComponent({
-  hazards, location, routeCoordinates, onMapClick, routeStart, routeEnd, routeMode, onUpvote
-}: {
+  hazards, location, routeCoordinates, onMapClick, routeStart, routeEnd, routeMode, onUpvote, isDriveMode }: {
   hazards: any[], location: { lat: number; lng: number } | null,
   routeCoordinates?: [number, number][], onMapClick?: (latlng: { lat: number; lng: number }) => void,
   routeStart?: { lat: number; lng: number } | null,
   routeEnd?: { lat: number; lng: number } | null,
   routeMode?: boolean,
-  onUpvote?: (id: number) => void
-}) {
+  onUpvote?: (id: number) => void, isDriveMode?: boolean }) {
   const [radiusKm, setRadiusKm] = useState<number | null>(null);
 
   useEffect(() => {
@@ -151,8 +149,8 @@ export default function CommuterMapComponent({
 
   return (
     <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      {/* Radius Ring Toggle */}
-      {location && (
+      {isDriveMode && <style>{.leaflet-control-container { display: none !important; }}</style>}\n      {/* Radius Ring Toggle */}
+      {!isDriveMode && location && (
         <div style={{ position: 'absolute', top: 85, left: 12, zIndex: 1000, background: 'white', borderRadius: 8, padding: '6px 10px', boxShadow: '0 2px 8px rgba(0,0,0,0.2)', border: '1px solid #d1d5db', display: 'flex', gap: 4 }}>
           {radiusOptions.map(r => (
             <button key={r ?? 'off'} onClick={() => setRadiusKm(r)}
@@ -253,7 +251,7 @@ export default function CommuterMapComponent({
         })}
       </MapContainer>
 
-      <MinimapInset location={location} />
+      {!isDriveMode && <MinimapInset location={location} />}
     </div>
   );
 }
