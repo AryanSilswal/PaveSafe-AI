@@ -558,7 +558,7 @@ export default function CommuterPage() {
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <Navigation className="text-blue-600" /> PaveSafe
+              <img src="/logo.svg" alt="PaveSafe Logo" className="w-8 h-8 drop-shadow-sm" /> PaveSafe
             </h2>
             <p className="text-sm text-gray-500 mt-1">Commuter Module</p>
           </div>

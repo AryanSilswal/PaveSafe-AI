@@ -362,7 +362,7 @@ const openAssignModal = (id: number) => {
       {/* Navbar */}
       <header className="bg-slate-900 text-white p-4 flex flex-col md:flex-row justify-between items-center shadow-md z-10 gap-4">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="text-blue-400" size={28}/>
+          <img src="/logo.svg" alt="PaveSafe Logo" className="w-8 h-8 drop-shadow-sm" />
           <h1 className="text-xl font-bold">PaveSafe Admin</h1>
         </div>
         <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center">

@@ -6,7 +6,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-8">
       <div className="max-w-2xl text-center space-y-8">
         <div className="flex justify-center mb-4">
-          <ShieldAlert size={64} className="text-blue-600" />
+          <img src="/logo.svg" alt="PaveSafe Logo" className="w-16 h-16 drop-shadow-md" />
         </div>
         <h1 className="text-5xl font-extrabold text-gray-900 tracking-tight">
           PaveSafe AI
