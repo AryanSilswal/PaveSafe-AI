@@ -263,13 +263,20 @@ def S2_extract_rim(mask):
     """Outer contour (rim only, floor excluded)"""
     return {"status": "success"}
 
-def S3_resolve_scale(rim, metadata):
-    """(W_m, A_m2, σ_W, σ_A) | relative-only"""
+def S3_resolve_scale(rim, metadata, detection):
+    """(W_m, A_m2, I_W, I_A) | Dynamic heuristic pixel mapping"""
+    rel_w = detection.get("rel_w", 0.15)
+    rel_h = detection.get("rel_h", 0.15)
+    
+    # Heuristic: Assume image width covers ~2.8m of road width on average
+    chord_width_m = round(rel_w * 2.8, 2)
+    rim_area_m2 = round((rel_w * 2.8) * (rel_h * 2.8), 3)
+    
     return {
-        "scale_source": metadata.get("scale_source", "none"),
+        "scale_source": metadata.get("scale_source", "heuristic_pixel_ratio"),
         "camera_height_m": 1.08, "camera_height_sigma_m": 0.05,
-        "rim_area_m2": 0.19, "rim_area_sigma_m2": 0.02,
-        "chord_width_m": 0.42, "chord_width_sigma_m": 0.03,
+        "rim_area_m2": rim_area_m2, "rim_area_sigma_m2": 0.02,
+        "chord_width_m": chord_width_m, "chord_width_sigma_m": 0.03,
         "compactness": 1.48, "solidity": 0.81
     }
 
