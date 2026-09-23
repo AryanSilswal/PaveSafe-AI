@@ -119,7 +119,7 @@ function MinimapInset({ location }: { location: { lat: number; lng: number } | n
   }, [location]);
 
   return (
-    <div style={{ position: 'absolute', bottom: 16, left: 16, zIndex: 1000, width: 130, height: 130, borderRadius: 10, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.35)', border: '2px solid white' }}>
+    <div style={{ position: 'absolute', bottom: 100, left: 24, zIndex: 1000, width: 130, height: 130, borderRadius: 10, overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.35)', border: '2px solid white' }}>
       <div id="pavesafe-minimap" style={{ width: '100%', height: '100%' }} />
     </div>
   );
