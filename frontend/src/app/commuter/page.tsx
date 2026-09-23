@@ -11,8 +11,20 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 export default function CommuterPage() {
   const [hazards, setHazards] = useState<any[]>([]);
   const hazardsRef = useRef<any[]>([]);
+  useEffect(() => {
+    // Collect live IMU Data (Gyroscope/Accelerometer)
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      if (event.beta !== null) {
+        setDevicePitch(event.beta); // Front-to-back tilt in degrees
+      }
+    };
+    window.addEventListener("deviceorientation", handleOrientation);
+    return () => window.removeEventListener("deviceorientation", handleOrientation);
+  }, []);
+
   useEffect(() => { hazardsRef.current = hazards; }, [hazards]);
   const [isReporting, setIsReporting] = useState(false);
+  const [devicePitch, setDevicePitch] = useState<number | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
 

@@ -151,12 +151,13 @@ app.get('/api/users/profile', authenticateToken, requireAuth, async (req, res) =
 // ─── Hazards ──────────────────────────────────────────────────────────────────
 app.post('/api/hazards/report', authenticateToken, upload.single('image'), async (req, res) => {
   try {
-    const { latitude, longitude } = req.body;
+    const { latitude, longitude, metadata } = req.body;
     const image = req.file;
     if (!latitude || !longitude || !image) return res.status(400).json({ error: 'Missing required fields' });
 
     const formData = new FormData();
     formData.append('file', new Blob([image.buffer], { type: image.mimetype }), image.originalname);
+    if (metadata) { formData.append('metadata', metadata); }
     let severity = 5;
     try {
       const aiResponse = await axios.post(`${process.env.AI_SERVICE_URL}/analyze`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
