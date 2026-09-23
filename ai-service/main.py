@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
@@ -397,7 +397,7 @@ def S6_vehicle_risk(geometry, depth):
 
 
 @app.post("/analyze")
-async def analyze_image(file: UploadFile = File(...)):
+async def analyze_image(file: UploadFile = File(...), metadata: str = Form(default="{}")):
     try:
         contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
@@ -411,11 +411,17 @@ async def analyze_image(file: UploadFile = File(...)):
         detection = S1_detect(img)
         rim = S2_extract_rim(detection.get("mock_mask"))
         
-        # In future, metadata comes from frontend request (ARCore or EXIF)
-        mock_metadata = {"scale_source": "ar_measured"}
-        
+        import json
+        try:
+            parsed_meta = json.loads(metadata)
+        except:
+            parsed_meta = {}
+            
+        if not parsed_meta:
+            parsed_meta = {"scale_source": "heuristic_pixel_ratio"}
+            
         depth = S4_estimate_depth(img, detection.get("mock_mask"))
-        geometry = S3_resolve_scale(rim, mock_metadata, detection)
+        geometry = S3_resolve_scale(rim, parsed_meta, detection)
         pavement_severity = S5_severity(geometry, depth)
         commuter_risk = S6_vehicle_risk(geometry, depth)
 
