@@ -1,6 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline, Circle, LayersControl } from 'react-leaflet';
+import useDarkMode from "../hooks/useDarkMode";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useState, useRef } from 'react';
@@ -134,6 +135,8 @@ export default function CommuterMapComponent({
   routeEnd?: { lat: number; lng: number } | null,
   routeMode?: boolean,
   onUpvote?: (id: number) => void, isDriveMode?: boolean }) {
+  const { theme } = useDarkMode();
+  const isDarkMode = theme === "dark";
   const [radiusKm, setRadiusKm] = useState<number | null>(null);
 
   useEffect(() => {
@@ -164,20 +167,10 @@ export default function CommuterMapComponent({
       )}
 
       <MapContainer center={[28.6139, 77.2090]} zoom={11} style={{ height: '100%', width: '100%', zIndex: 0 }}>
-        <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Street View">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <TileLayer
+              attribution={isDarkMode ? "Tiles &copy; Esri" : "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"}
+              url={isDarkMode ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
             />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Satellite View">
-            <TileLayer
-              attribution='Tiles &copy; Esri'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            />
-          </LayersControl.BaseLayer>
-        </LayersControl>
 
         {!routeMode && <LocationUpdater location={location} />}
         {onMapClick && <MapClickListener onMapClick={onMapClick} />}

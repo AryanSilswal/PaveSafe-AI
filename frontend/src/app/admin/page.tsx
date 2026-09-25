@@ -280,17 +280,17 @@ const openAssignModal = (id: number) => {
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100 dark:border-gray-700">
           <div className="flex flex-col items-center mb-6">
             <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mb-4"><Lock className="text-blue-600 dark:text-blue-400" size={32} /></div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Login</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Admin Login</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Authorized municipal personnel only</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Username</label>
               <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full p-3 border rounded-lg" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-3 border rounded-lg" required />
             </div>
             {loginError && <p className="text-red-500 text-sm font-medium">{loginError}</p>}
@@ -321,15 +321,15 @@ const openAssignModal = (id: number) => {
       {/* Export Modal */}
       {showExportModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
-            <button onClick={() => setShowExportModal(false)} className="absolute top-4 right-4 text-gray-500"><X size={20}/></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800"><Download className="text-emerald-600"/> Export Data</h3>
-            <p className="text-sm text-gray-600 mb-6">Would you like to export all records, or only the ones matching your current filters and sorting?</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+            <button onClick={() => setShowExportModal(false)} className="absolute top-4 right-4 text-gray-500 dark:text-gray-400"><X size={20}/></button>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100"><Download className="text-emerald-600"/> Export Data</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">Would you like to export all records, or only the ones matching your current filters and sorting?</p>
             <div className="space-y-3">
               <button onClick={() => handleExport('filtered')} className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700">
                 Export Current View ({processedHazards.length})
               </button>
-              <button onClick={() => handleExport('all')} className="w-full bg-gray-200 text-gray-800 py-2.5 rounded-lg font-semibold hover:bg-gray-300">
+              <button onClick={() => handleExport('all')} className="w-full bg-gray-200 text-gray-800 dark:text-gray-100 py-2.5 rounded-lg font-semibold hover:bg-gray-300">
                 Export All Data ({hazards.length})
               </button>
             </div>
@@ -340,17 +340,17 @@ const openAssignModal = (id: number) => {
       {/* Assignment Modal */}
       {showAssignModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
-            <button onClick={() => setShowAssignModal(false)} className="absolute top-4 right-4 text-gray-500"><X size={20}/></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800"><User className="text-blue-600"/> Assign Repair Crew</h3>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setShowAssignModal(false)} className="absolute top-4 right-4 text-gray-500 dark:text-gray-400"><X size={20}/></button>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100"><User className="text-blue-600"/> Assign Repair Crew</h3>
             <form onSubmit={submitAssignment} className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Worker/Contractor Name</label>
-                <input type="text" required value={workerName} onChange={e=>setWorkerName(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 rounded text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. John Doe - Unit 4" />
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Worker/Contractor Name</label>
+                <input type="text" required value={workerName} onChange={e=>setWorkerName(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-50 placeholder:text-slate-400 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. John Doe - Unit 4" />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700">Resolution Deadline</label>
-                <input type="date" required min={new Date(Date.now() + 86400000).toISOString().split('T')[0]} value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 rounded text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Resolution Deadline</label>
+                <input type="date" required min={new Date(Date.now() + 86400000).toISOString().split('T')[0]} value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-slate-50 placeholder:text-slate-400 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold mt-4">
                 {isSubmitting ? 'Assigning...' : 'Dispatch Crew'}
@@ -386,16 +386,16 @@ const openAssignModal = (id: number) => {
         
         {/* Analytics Header */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div><p className="text-sm text-gray-500">Total Hazards</p><h2 className="text-2xl font-bold text-slate-800">{total}</h2></div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Hazards</p><h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{total}</h2></div>
             <div className="bg-blue-100 p-3 rounded-full"><List className="text-blue-600" /></div>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div><p className="text-sm text-gray-500">Active Critical Hazards</p><h2 className="text-2xl font-bold text-red-600">{critical}</h2></div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Active Critical Hazards</p><h2 className="text-2xl font-bold text-red-600">{critical}</h2></div>
             <div className="bg-red-100 p-3 rounded-full"><AlertTriangle className="text-red-600" /></div>
           </div>
-          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div><p className="text-sm text-gray-500">Total Resolved</p><h2 className="text-2xl font-bold text-green-600">{resolved}</h2></div>
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Resolved</p><h2 className="text-2xl font-bold text-green-600">{resolved}</h2></div>
             <div className="bg-green-100 p-3 rounded-full"><CheckCircle className="text-green-600" /></div>
           </div>
         </div>
@@ -403,8 +403,8 @@ const openAssignModal = (id: number) => {
         {/* Analytics Panel */}
         {showAnalytics && (
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <h3 className="font-bold text-gray-700 text-sm mb-3 flex items-center gap-2">📈 Severity Trend (Last 30 Days)</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 p-4">
+              <h3 className="font-bold text-gray-700 dark:text-gray-200 text-sm mb-3 flex items-center gap-2">📈 Severity Trend (Last 30 Days)</h3>
               {trendData.length === 0 ? (
                 <p className="text-sm text-gray-400 italic text-center py-8">No data yet. Reports will appear here.</p>
               ) : (
@@ -421,8 +421,8 @@ const openAssignModal = (id: number) => {
                 </ResponsiveContainer>
               )}
             </div>
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-              <h3 className="font-bold text-gray-700 text-sm mb-3 flex items-center gap-2">🔁 Chronic Problem Areas</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 p-4">
+              <h3 className="font-bold text-gray-700 dark:text-gray-200 text-sm mb-3 flex items-center gap-2">🔁 Chronic Problem Areas</h3>
               {chronicHotspots.length === 0 ? (
                 <p className="text-sm text-gray-400 italic text-center py-8">No recurring hotspots detected yet.</p>
               ) : (
@@ -430,7 +430,7 @@ const openAssignModal = (id: number) => {
                   {chronicHotspots.map((h: any) => (
                     <div key={h.id} className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded-lg">
                       <div>
-                        <span className="text-sm font-semibold text-gray-800">Near #{h.id}</span>
+                        <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Near #{h.id}</span>
                         <span className="text-xs text-gray-400 ml-2">{parseFloat(h.latitude).toFixed(4)}, {parseFloat(h.longitude).toFixed(4)}</span>
                       </div>
                       <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full">{h.clusterCount} reports</span>
@@ -445,10 +445,10 @@ const openAssignModal = (id: number) => {
         {viewMode === 'list' ? (
           <div className="max-w-7xl mx-auto flex flex-col gap-4">
             {/* Filter Bar */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap gap-4 items-end">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 flex flex-wrap gap-4 items-end">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Status</label>
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 text-slate-900 placeholder:text-slate-400">
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Status</label>
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-slate-300 dark:border-slate-600 p-2 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-slate-900 dark:text-slate-50 placeholder:text-slate-400">
                   <option value="All">All Statuses</option>
                   <option value="Reported">Reported</option>
                   <option value="In Progress">In Progress</option>
@@ -457,51 +457,51 @@ const openAssignModal = (id: number) => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Min Severity</label>
-                <input type="number" min="1" max="10" value={filterSeverityMin} onChange={e => setFilterSeverityMin(Number(e.target.value))} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 w-24 text-slate-900" />
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Min Severity</label>
+                <input type="number" min="1" max="10" value={filterSeverityMin} onChange={e => setFilterSeverityMin(Number(e.target.value))} className="border border-slate-300 dark:border-slate-600 p-2 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 w-24 text-slate-900 dark:text-slate-50" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Max Severity</label>
-                <input type="number" min="1" max="10" value={filterSeverityMax} onChange={e => setFilterSeverityMax(Number(e.target.value))} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 w-24 text-slate-900" />
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Max Severity</label>
+                <input type="number" min="1" max="10" value={filterSeverityMax} onChange={e => setFilterSeverityMax(Number(e.target.value))} className="border border-slate-300 dark:border-slate-600 p-2 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 w-24 text-slate-900 dark:text-slate-50" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Date From</label>
-                <input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 text-slate-900 placeholder:text-slate-400" />
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Date From</label>
+                <input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} className="border border-slate-300 dark:border-slate-600 p-2 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-slate-900 dark:text-slate-50 placeholder:text-slate-400" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Date To</label>
-                <input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 text-slate-900 placeholder:text-slate-400" />
+                <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Date To</label>
+                <input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} className="border border-slate-300 dark:border-slate-600 p-2 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-slate-900 dark:text-slate-50 placeholder:text-slate-400" />
               </div>
               <div className="flex-1 flex justify-end">
-                <button onClick={resetFilters} className="text-sm text-gray-500 hover:text-gray-800 underline">Reset Filters</button>
+                <button onClick={resetFilters} className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:text-gray-100 underline">Reset Filters</button>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left whitespace-nowrap select-none">
-                  <thead className="bg-gray-50 border-b border-gray-200">
+                  <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600">
                     <tr>
-                      <th onClick={() => requestSort('id')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">ID {getSortIcon('id')}</th>
-                      <th onClick={() => requestSort('severity')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Severity {getSortIcon('severity')}</th>
-                      <th onClick={() => requestSort('status')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Status {getSortIcon('status')}</th>
-                      <th onClick={() => requestSort('confirmation_count')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Upvotes {getSortIcon('confirmation_count')}</th>
-                      <th onClick={() => requestSort('assignment')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Assignment {getSortIcon('assignment')}</th>
-                      <th onClick={() => requestSort('reporter')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Reporter {getSortIcon('reporter')}</th>
-                      <th onClick={() => requestSort('reported_at')} className="p-4 font-semibold text-gray-600 text-sm cursor-pointer hover:bg-gray-100">Date {getSortIcon('reported_at')}</th>
-                      <th className="p-4 font-semibold text-gray-600 text-sm">Actions</th>
+                      <th onClick={() => requestSort('id')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">ID {getSortIcon('id')}</th>
+                      <th onClick={() => requestSort('severity')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Severity {getSortIcon('severity')}</th>
+                      <th onClick={() => requestSort('status')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Status {getSortIcon('status')}</th>
+                      <th onClick={() => requestSort('confirmation_count')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Upvotes {getSortIcon('confirmation_count')}</th>
+                      <th onClick={() => requestSort('assignment')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Assignment {getSortIcon('assignment')}</th>
+                      <th onClick={() => requestSort('reporter')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Reporter {getSortIcon('reporter')}</th>
+                      <th onClick={() => requestSort('reported_at')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Date {getSortIcon('reported_at')}</th>
+                      <th className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {processedHazards.map((hazard) => (
                       <tr key={hazard.id} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="p-4 text-sm text-gray-500">#{hazard.id}</td>
+                        <td className="p-4 text-sm text-gray-500 dark:text-gray-400">#{hazard.id}</td>
                         <td className="p-4">{getSeverityBadge(hazard.severity)}</td>
                         <td className="p-4">
                           <span className={`flex items-center gap-1 text-sm font-medium ${
                             hazard.status === 'Resolved' ? 'text-green-600' : 
                             hazard.status === 'In Progress' ? 'text-amber-600' : 
-                            hazard.status === 'Rejected' ? 'text-red-600' : 'text-gray-600'
+                            hazard.status === 'Rejected' ? 'text-red-600' : 'text-gray-600 dark:text-gray-300'
                           }`}>
                             {hazard.status === 'Resolved' ? <CheckCircle size={14} /> : <Clock size={14} />}
                             {hazard.status}
@@ -511,14 +511,14 @@ const openAssignModal = (id: number) => {
                         <td className="p-4">
                           {hazard.assigned_worker ? (
                             <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-800">{hazard.assigned_worker}</span>
+                              <span className="text-sm font-medium text-gray-800 dark:text-gray-100">{hazard.assigned_worker}</span>
                               <span className="text-xs text-red-500 flex items-center gap-1"><Calendar size={10}/> {new Date(hazard.deadline).toLocaleDateString()}</span>
                             </div>
                           ) : (
                             <span className="text-xs text-gray-400 italic">Unassigned</span>
                           )}
                         </td>
-                        <td className="p-4 text-sm text-gray-500">
+                        <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
                           {hazard.reporter_id ? (
                             <>
                               <span className="font-semibold">@{hazard.reporter_name}</span>
@@ -528,7 +528,7 @@ const openAssignModal = (id: number) => {
                             <span className="italic">Anonymous (System)</span>
                           )}
                         </td>
-                        <td className="p-4 text-sm text-gray-500">
+                        <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
                           <div className="text-sm">{new Date(hazard.reported_at).toLocaleDateString()}</div>
                           <div className="text-xs text-gray-400">{new Date(hazard.reported_at).toLocaleTimeString()}</div>
                         </td>
@@ -569,7 +569,7 @@ const openAssignModal = (id: number) => {
                   </tbody>
                 </table>
                 {processedHazards.length === 0 && (
-                  <div className="p-8 text-center text-gray-500">
+                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">
                     No records found matching your filters.
                   </div>
                 )}
@@ -577,7 +577,7 @@ const openAssignModal = (id: number) => {
             </div>
           </div>
         ) : (
-          <div className="h-[75vh] max-w-7xl mx-auto rounded-xl overflow-hidden shadow-md border border-gray-200 relative z-0">
+          <div className="h-[75vh] max-w-7xl mx-auto rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-600 relative z-0">
             <AdminMapComponent hazards={processedHazards} />
           </div>
         )}

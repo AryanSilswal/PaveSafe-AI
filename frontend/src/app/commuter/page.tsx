@@ -493,15 +493,15 @@ export default function CommuterPage() {
   })();
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col lg:flex-row font-sans transition-colors">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50 flex flex-col lg:flex-row font-sans transition-colors">
       
       {/* Profile Drawer */}
       {showProfile && profileData && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end lg:items-center justify-center p-4" onClick={() => setShowProfile(false)}>
-          <div className="bg-white rounded-t-2xl lg:rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-gray-800 rounded-t-2xl lg:rounded-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-800">My Profile</h2>
-              <button onClick={() => setShowProfile(false)} className="text-gray-400 hover:text-gray-700 text-xl font-bold">✕</button>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">My Profile</h2>
+              <button onClick={() => setShowProfile(false)} className="text-gray-400 hover:text-gray-700 dark:text-gray-200 text-xl font-bold">✕</button>
             </div>
             <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-5 text-white mb-4">
               <div className="text-lg font-bold">@{profileData.username}</div>
@@ -513,13 +513,13 @@ export default function CommuterPage() {
                 <div className="bg-white/20 rounded-lg p-2"><div className="text-xl font-bold text-red-300">{profileData.rejectedReports}</div><div className="text-xs opacity-80">Rejected</div></div>
               </div>
             </div>
-            <h3 className="font-semibold text-gray-700 mb-2 text-sm uppercase tracking-wider">Report History</h3>
+            <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-2 text-sm uppercase tracking-wider">Report History</h3>
             <div className="space-y-2">
               {profileData.reports.length === 0 && <p className="text-sm text-gray-400 italic">No reports yet.</p>}
               {profileData.reports.map((r: any) => (
-                <div key={r.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
+                <div key={r.id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-700">
                   <div>
-                    <span className="text-sm font-semibold text-gray-700">Hazard #{r.id}</span>
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Hazard #{r.id}</span>
                     <span className="ml-2 text-xs text-gray-400">{new Date(r.reported_at).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -536,25 +536,25 @@ export default function CommuterPage() {
       {/* Login Modal */}
       {showLogin && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
-            <button onClick={() => setShowLogin(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800">X</button>
-            <h2 className="text-2xl font-bold mb-2 text-slate-800">{isRegistering ? 'Create Alias' : 'Commuter Login'}</h2>
-            <p className="text-sm text-gray-500 mb-6">Use a pseudonym to protect your identity.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setShowLogin(false)} className="absolute top-4 right-4 text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:text-gray-100">X</button>
+            <h2 className="text-2xl font-bold mb-2 text-slate-800 dark:text-slate-100">{isRegistering ? 'Create Alias' : 'Commuter Login'}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Use a pseudonym to protect your identity.</p>
             
             <form onSubmit={handleAuth} className="space-y-4">
               <input 
                 type="text" placeholder="Username / Alias" required value={username} onChange={e => setUsername(e.target.value)}
-                className="w-full border border-slate-300 p-3 rounded-lg text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-300 dark:border-slate-600 p-3 rounded-lg text-slate-900 dark:text-slate-50 placeholder:text-slate-400 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input 
                 type="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full border border-slate-300 p-3 rounded-lg text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-slate-300 dark:border-slate-600 p-3 rounded-lg text-slate-900 dark:text-slate-50 placeholder:text-slate-400 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button type="submit" className="w-full bg-blue-600 text-white font-bold text-lg py-5 rounded-xl shadow-md">
                 {isRegistering ? 'Register' : 'Login'}
               </button>
             </form>
-            <p className="mt-4 text-sm text-center text-gray-600">
+            <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-300">
               {isRegistering ? 'Already have an account?' : 'No account?'} 
               <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-600 ml-1 font-semibold">
                 {isRegistering ? 'Login' : 'Create one'}
@@ -565,7 +565,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white dark:bg-gray-800 shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 dark:border-gray-700 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
+      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white dark:bg-gray-800 shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 dark:border-gray-600 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
@@ -588,7 +588,7 @@ export default function CommuterPage() {
                   <Bell size={18} />
                   {unreadCount > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>}
                 </button>
-                <button onClick={handleLogout} className="p-2 text-gray-500 hover:text-red-500">
+                <button onClick={handleLogout} className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500">
                   <LogOut size={18} />
                 </button>
               </div>
@@ -600,12 +600,12 @@ export default function CommuterPage() {
             
             {/* Notifications Dropdown */}
             {showNotifications && (
-              <div className="absolute right-0 top-12 w-64 bg-white shadow-lg border rounded-lg overflow-hidden z-50">
-                <div className="p-3 bg-gray-50 border-b font-semibold text-sm text-slate-800">Notifications</div>
+              <div className="absolute right-0 top-12 w-64 bg-white dark:bg-gray-800 shadow-lg border rounded-lg overflow-hidden z-50">
+                <div className="p-3 bg-gray-50 dark:bg-gray-900 border-b font-semibold text-sm text-slate-800 dark:text-slate-100">Notifications</div>
                 <div className="max-h-60 overflow-y-auto">
-                  {notifications.length === 0 ? <p className="p-4 text-sm text-gray-500">No notifications.</p> : null}
+                  {notifications.length === 0 ? <p className="p-4 text-sm text-gray-500 dark:text-gray-400">No notifications.</p> : null}
                   {notifications.map(n => (
-                    <div key={n.id} className="p-3 border-b text-sm text-slate-900 bg-green-50 font-medium">
+                    <div key={n.id} className="p-3 border-b text-sm text-slate-900 dark:text-slate-50 bg-green-50 font-medium">
                       {n.message}
                       <div className="text-xs font-semibold text-slate-500 mt-2">{new Date(n.created_at).toLocaleDateString()}</div>
                     </div>
@@ -632,13 +632,13 @@ export default function CommuterPage() {
         <div className="flex bg-gray-100 rounded-lg p-1">
           <button 
             onClick={() => setRouteMode(false)}
-            className={`flex-1 py-4 text-base font-bold rounded-lg ${!routeMode ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500'}`}
+            className={`flex-1 py-4 text-base font-bold rounded-lg ${!routeMode ? 'bg-white dark:bg-gray-800 shadow-sm text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
           >
             Report Hazard
           </button>
           <button 
             onClick={() => setRouteMode(true)}
-            className={`flex-1 py-4 text-base font-bold rounded-lg ${routeMode ? 'bg-white shadow-sm text-purple-600' : 'text-gray-500'}`}
+            className={`flex-1 py-4 text-base font-bold rounded-lg ${routeMode ? 'bg-white dark:bg-gray-800 shadow-sm text-purple-600' : 'text-gray-500 dark:text-gray-400'}`}
           >
             Safe Routes
           </button>
@@ -647,20 +647,20 @@ export default function CommuterPage() {
         {/* Dynamic Content Area */}
         {!routeMode ? (
           // REPORT HAZARD UI
-          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 flex-1 flex flex-col">
-            <h3 className="font-bold text-gray-800 text-lg mb-6 flex items-center gap-2">
+          <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-600 flex-1 flex flex-col">
+            <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg mb-6 flex items-center gap-2">
               <AlertTriangle size={18} className="text-amber-500" />
               Report New Hazard
             </h3>
             
             {!user ? (
-              <div className="flex flex-col items-center justify-center flex-1 text-center bg-white rounded-lg border p-6 space-y-4 shadow-sm">
+              <div className="flex flex-col items-center justify-center flex-1 text-center bg-white dark:bg-gray-800 rounded-lg border p-6 space-y-4 shadow-sm">
                 <div className="bg-blue-100 p-3 rounded-full">
                   <Lock className="text-blue-500" size={24} />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-800">Authentication Required</h4>
-                  <p className="text-sm text-gray-500 mt-1">For security and to earn Safe Citizen Points, please sign in before reporting a hazard.</p>
+                  <h4 className="font-semibold text-gray-800 dark:text-gray-100">Authentication Required</h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">For security and to earn Safe Citizen Points, please sign in before reporting a hazard.</p>
                 </div>
                 <button 
                   onClick={() => setShowLogin(true)}
@@ -672,7 +672,7 @@ export default function CommuterPage() {
             ) : (
               <div className="space-y-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-base font-semibold text-gray-700 mb-2 block">Take a photo of the pothole</label>
+                  <label className="text-base font-semibold text-gray-700 dark:text-gray-200 mb-2 block">Take a photo of the pothole</label>
                   <div className="relative">
                     <input 
                       type="file" accept="image/*" capture="environment" onChange={handlePhotoUpload}
@@ -681,10 +681,10 @@ export default function CommuterPage() {
                     />
                     <label 
                       htmlFor="camera-input" 
-                      className={`flex items-center justify-center gap-2 w-full p-8 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50' : 'border-gray-300 cursor-pointer hover:bg-gray-100'}`}
+                      className={`flex items-center justify-center gap-2 w-full p-8 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 cursor-not-allowed opacity-50' : 'border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100'}`}
                     >
                       {photo ? <CheckCircle className="text-green-500" /> : <Camera className={!location ? "text-gray-300" : "text-gray-400"} />}
-                      <span className="text-base font-bold text-gray-600">
+                      <span className="text-base font-bold text-gray-600 dark:text-gray-300">
                         {!location ? 'Waiting for GPS lock...' : photo ? 'Photo Captured' : 'Open Camera'}
                       </span>
                     </label>
@@ -714,9 +714,9 @@ export default function CommuterPage() {
             </h3>
             
             <div className="space-y-3 mb-4 mt-2">
-              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white'}`}>
+              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 dark:border-gray-600 bg-white'}`}>
                 <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Start Point</div>
+                  <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Start Point</div>
                   <button onClick={() => setSelectingPoint('start')} className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
                     {selectingPoint === 'start' ? 'Click Map Now' : 'Select on Map'}
                   </button>
@@ -729,7 +729,7 @@ export default function CommuterPage() {
                       value={startSearchQuery}
                       onChange={(e) => setStartSearchQuery(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(startSearchQuery, 'start'); }}
-                      className="w-full p-4 border border-slate-300 rounded-lg text-base text-slate-900 placeholder:text-slate-400 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-4 border border-slate-300 dark:border-slate-600 rounded-lg text-base text-slate-900 dark:text-slate-50 placeholder:text-slate-400 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500"
                     />
                     <button 
                       onClick={() => searchAddress(startSearchQuery, 'start')}
@@ -740,7 +740,7 @@ export default function CommuterPage() {
                     </button>
                   </div>
                   {startResults.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border rounded shadow-lg max-h-48 overflow-y-auto">
                       {startResults.map(res => (
                         <div key={res.place_id} onClick={() => selectSearchResult(res, 'start')} className="p-2 hover:bg-gray-100 text-sm cursor-pointer border-b last:border-b-0 truncate">
                           {res.display_name}
@@ -751,9 +751,9 @@ export default function CommuterPage() {
                 </div>
               </div>
 
-              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 bg-white'}`}>
+              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 dark:border-gray-600 bg-white'}`}>
                 <div className="flex justify-between items-center mb-2">
-                  <div className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Destination</div>
+                  <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</div>
                   <button onClick={() => setSelectingPoint('end')} className="text-sm bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200">
                     {selectingPoint === 'end' ? 'Click Map Now' : 'Select on Map'}
                   </button>
@@ -766,7 +766,7 @@ export default function CommuterPage() {
                       value={endSearchQuery}
                       onChange={(e) => setEndSearchQuery(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(endSearchQuery, 'end'); }}
-                      className="w-full p-4 border border-slate-300 rounded-lg text-base text-slate-900 placeholder:text-slate-400 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                      className="w-full p-4 border border-slate-300 dark:border-slate-600 rounded-lg text-base text-slate-900 dark:text-slate-50 placeholder:text-slate-400 bg-gray-50 dark:bg-gray-900 focus:bg-white dark:bg-gray-800 focus:ring-2 focus:ring-purple-500"
                     />
                     <button 
                       onClick={() => searchAddress(endSearchQuery, 'end')}
@@ -777,7 +777,7 @@ export default function CommuterPage() {
                     </button>
                   </div>
                   {endResults.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-48 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border rounded shadow-lg max-h-48 overflow-y-auto">
                       {endResults.map(res => (
                         <div key={res.place_id} onClick={() => selectSearchResult(res, 'end')} className="p-2 hover:bg-gray-100 text-sm cursor-pointer border-b last:border-b-0 truncate">
                           {res.display_name}
@@ -796,16 +796,16 @@ export default function CommuterPage() {
             {isRouting && <p className="text-sm text-purple-600 animate-pulse font-medium text-center">Calculating route safety...</p>}
             
             {routeSafety && !isRouting && (
-              <div className="bg-white p-4 rounded-lg shadow-sm border mt-4">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border mt-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-semibold text-gray-600">Safety Score:</span>
+                  <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">Safety Score:</span>
                   <span className={`text-xl font-bold ${routeSafety.safetyScore > 70 ? 'text-green-500' : routeSafety.safetyScore > 40 ? 'text-amber-500' : 'text-red-500'}`}>
                     {routeSafety.safetyScore.toFixed(0)}/100
                   </span>
                 </div>
                 <div className="space-y-1 mt-3">
-                  <p className="text-sm text-gray-500">Total Hazards on Route: <strong className="text-gray-800">{routeSafety.hazardsCount}</strong></p>
-                  <p className="text-sm text-gray-500">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.criticalHazards}</strong></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Total Hazards on Route: <strong className="text-gray-800 dark:text-gray-100">{routeSafety.hazardsCount}</strong></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.criticalHazards}</strong></p>
                 </div>
                 {routeSafety.safetyScore < 50 && (
                   <div className="mt-3 bg-red-50 p-2 rounded text-sm text-red-700 border border-red-200">
@@ -818,19 +818,19 @@ export default function CommuterPage() {
         )}
 
         {/* LEADERBOARD UI */}
-        <div className="mt-4 bg-gray-50 border rounded-xl p-4 flex flex-col">
-          <h3 className="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
+        <div className="mt-4 bg-gray-50 dark:bg-gray-900 border rounded-xl p-4 flex flex-col">
+          <h3 className="font-semibold text-gray-700 dark:text-gray-200 mb-3 text-sm uppercase tracking-wider flex items-center gap-2">
             🏆 Top Safe Citizens
           </h3>
           <div className="space-y-2">
             {leaderboard.length === 0 ? (
-              <p className="text-sm text-gray-500 italic">No rankings yet.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 italic">No rankings yet.</p>
             ) : (
               leaderboard.map((u, index) => (
-                <div key={u.username} className={`flex justify-between items-center p-2 rounded-lg border ${index === 0 ? 'bg-yellow-50 border-yellow-200' : index === 1 ? 'bg-gray-100 border-gray-300' : index === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white border-gray-100'}`}>
+                <div key={u.username} className={`flex justify-between items-center p-2 rounded-lg border ${index === 0 ? 'bg-yellow-50 border-yellow-200' : index === 1 ? 'bg-gray-100 border-gray-300 dark:border-gray-600' : index === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'}`}>
                   <div className="flex items-center gap-2 text-sm font-medium">
-                    <span className="text-gray-500 font-bold w-4">{index + 1}.</span>
-                    <span className="text-gray-800">@{u.username}</span>
+                    <span className="text-gray-500 dark:text-gray-400 font-bold w-4">{index + 1}.</span>
+                    <span className="text-gray-800 dark:text-gray-100">@{u.username}</span>
                   </div>
                   <span className="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{u.points} pts</span>
                 </div>

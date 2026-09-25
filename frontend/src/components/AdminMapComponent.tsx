@@ -1,6 +1,7 @@
 "use client";
 
 import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from 'react-leaflet';
+import useDarkMode from "../hooks/useDarkMode";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useEffect, useState } from 'react';
@@ -114,6 +115,8 @@ function ClusterLayer({ hazards, statusFilter, onUpvote }: { hazards: any[], sta
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function AdminMapComponent({ hazards }: { hazards: any[] }) {
+  const { theme } = useDarkMode();
+  const isDarkMode = theme === "dark";
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [statusFilter, setStatusFilter] = useState(['Reported', 'In Progress', 'Resolved', 'Rejected']);
   const [localHazards, setLocalHazards] = useState(hazards);
@@ -173,20 +176,10 @@ export default function AdminMapComponent({ hazards }: { hazards: any[] }) {
       </div>
 
       <MapContainer center={[28.6139, 77.2090]} zoom={11} style={{ height: '100%', width: '100%' }}>
-        <LayersControl position="topright">
-          <LayersControl.BaseLayer checked name="Street View">
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <TileLayer
+              attribution={isDarkMode ? "Tiles &copy; Esri" : "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"}
+              url={isDarkMode ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
             />
-          </LayersControl.BaseLayer>
-          <LayersControl.BaseLayer name="Satellite View">
-            <TileLayer
-              attribution='Tiles &copy; Esri'
-              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-            />
-          </LayersControl.BaseLayer>
-        </LayersControl>
 
         <HeatmapLayer hazards={localHazards} visible={showHeatmap} />
         <ClusterLayer hazards={localHazards} statusFilter={statusFilter} onUpvote={handleUpvote} />
