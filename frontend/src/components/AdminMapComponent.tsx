@@ -163,7 +163,7 @@ export default function AdminMapComponent({ hazards }: { hazards: any[] }) {
         <div style={{ background: 'white', borderRadius: 8, padding: '8px 10px', boxShadow: '0 2px 6px rgba(0,0,0,0.15)', border: '1px solid #d1d5db' }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', marginBottom: 6, textTransform: 'uppercase' }}>Filter by Status</div>
           {statusOptions.map(s => (
-            <label key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+            <label key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: '#1e293b' }}>
               <input type="checkbox" checked={statusFilter.includes(s.label)} onChange={() => toggleStatus(s.label)} />
               <span style={{ width: 10, height: 10, borderRadius: '50%', background: s.color, display: 'inline-block' }}></span>
               {s.label}

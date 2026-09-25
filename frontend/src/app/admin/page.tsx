@@ -322,7 +322,7 @@ const openAssignModal = (id: number) => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
             <button onClick={() => setShowExportModal(false)} className="absolute top-4 right-4 text-gray-500"><X size={20}/></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><Download className="text-emerald-600"/> Export Data</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800"><Download className="text-emerald-600"/> Export Data</h3>
             <p className="text-sm text-gray-600 mb-6">Would you like to export all records, or only the ones matching your current filters and sorting?</p>
             <div className="space-y-3">
               <button onClick={() => handleExport('filtered')} className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700">
@@ -341,15 +341,15 @@ const openAssignModal = (id: number) => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
             <button onClick={() => setShowAssignModal(false)} className="absolute top-4 right-4 text-gray-500"><X size={20}/></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2"><User className="text-blue-600"/> Assign Repair Crew</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800"><User className="text-blue-600"/> Assign Repair Crew</h3>
             <form onSubmit={submitAssignment} className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700">Worker/Contractor Name</label>
-                <input type="text" required value={workerName} onChange={e=>setWorkerName(e.target.value)} className="w-full mt-1 p-2 border rounded" placeholder="e.g. John Doe - Unit 4" />
+                <input type="text" required value={workerName} onChange={e=>setWorkerName(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 rounded text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. John Doe - Unit 4" />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Resolution Deadline</label>
-                <input type="datetime-local" required value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border rounded" />
+                <input type="datetime-local" required value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 rounded text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold mt-4">
                 {isSubmitting ? 'Assigning...' : 'Dispatch Crew'}
@@ -385,7 +385,7 @@ const openAssignModal = (id: number) => {
         {/* Analytics Header */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-            <div><p className="text-sm text-gray-500">Total Hazards</p><h2 className="text-2xl font-bold">{total}</h2></div>
+            <div><p className="text-sm text-gray-500">Total Hazards</p><h2 className="text-2xl font-bold text-slate-800">{total}</h2></div>
             <div className="bg-blue-100 p-3 rounded-full"><List className="text-blue-600" /></div>
           </div>
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -446,7 +446,7 @@ const openAssignModal = (id: number) => {
             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-wrap gap-4 items-end">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Status</label>
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border p-2 rounded-lg text-sm bg-gray-50">
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 text-slate-900 placeholder:text-slate-400">
                   <option value="All">All Statuses</option>
                   <option value="Reported">Reported</option>
                   <option value="In Progress">In Progress</option>
@@ -456,19 +456,19 @@ const openAssignModal = (id: number) => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Min Severity</label>
-                <input type="number" min="1" max="10" value={filterSeverityMin} onChange={e => setFilterSeverityMin(Number(e.target.value))} className="border p-2 rounded-lg text-sm bg-gray-50 w-24" />
+                <input type="number" min="1" max="10" value={filterSeverityMin} onChange={e => setFilterSeverityMin(Number(e.target.value))} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 w-24 text-slate-900" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Max Severity</label>
-                <input type="number" min="1" max="10" value={filterSeverityMax} onChange={e => setFilterSeverityMax(Number(e.target.value))} className="border p-2 rounded-lg text-sm bg-gray-50 w-24" />
+                <input type="number" min="1" max="10" value={filterSeverityMax} onChange={e => setFilterSeverityMax(Number(e.target.value))} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 w-24 text-slate-900" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Date From</label>
-                <input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} className="border p-2 rounded-lg text-sm bg-gray-50" />
+                <input type="date" value={filterDateFrom} onChange={e => setFilterDateFrom(e.target.value)} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 text-slate-900 placeholder:text-slate-400" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-500 mb-1">Date To</label>
-                <input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} className="border p-2 rounded-lg text-sm bg-gray-50" />
+                <input type="date" value={filterDateTo} onChange={e => setFilterDateTo(e.target.value)} className="border border-slate-300 p-2 rounded-lg text-sm bg-gray-50 text-slate-900 placeholder:text-slate-400" />
               </div>
               <div className="flex-1 flex justify-end">
                 <button onClick={resetFilters} className="text-sm text-gray-500 hover:text-gray-800 underline">Reset Filters</button>

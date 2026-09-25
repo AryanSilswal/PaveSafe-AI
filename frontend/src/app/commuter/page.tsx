@@ -580,7 +580,7 @@ export default function CommuterPage() {
               <div className="flex items-center gap-3">
                 <button 
                   onClick={() => { setShowNotifications(!showNotifications); if(unreadCount > 0) markNotificationsRead(); }}
-                  className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200"
+                  className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 text-slate-600"
                 >
                   <Bell size={18} />
                   {unreadCount > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>}
