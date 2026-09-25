@@ -121,3 +121,5 @@ uvicorn main:app --reload --port 8000
 
 ---
 *Developed for research and municipal safety.*
+
+<!-- Non-effective change -->
