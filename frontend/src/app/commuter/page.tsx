@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Square, Play, Camera, AlertTriangle, CheckCircle, Navigation, Bell, LogOut, MapPin, Search, Lock } from 'lucide-react';
 import axios from 'axios';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const CommuterMapComponent = dynamic(() => import('../../components/CommuterMapComponent'), { ssr: false });
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -492,7 +493,7 @@ export default function CommuterPage() {
   })();
 
   return (
-    <div className="w-full flex flex-col lg:flex-row font-sans">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex flex-col lg:flex-row font-sans transition-colors">
       
       {/* Profile Drawer */}
       {showProfile && profileData && (
@@ -564,20 +565,22 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
+      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white dark:bg-gray-800 shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 dark:border-gray-700 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <img src="/logo.svg" alt="PaveSafe Logo" className="w-8 h-8 drop-shadow-sm" /> PaveSafe
             </h2>
-            <p className="text-sm text-gray-500 mt-1">Commuter Module</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Commuter Module</p>
           </div>
           
-          <div className="relative">
-            {user ? (
-              <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <div className="relative">
+              {user ? (
+                <div className="flex items-center gap-3">
                 <button 
                   onClick={() => { setShowNotifications(!showNotifications); if(unreadCount > 0) markNotificationsRead(); }}
                   className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 text-slate-600"
@@ -612,6 +615,7 @@ export default function CommuterPage() {
             )}
           </div>
         </div>
+      </div>
 
         {/* Gamification Stats */}
         {user && (

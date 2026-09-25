@@ -5,6 +5,7 @@ import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ShieldCheck, Map as MapIcon, List, CheckCircle, Clock, Lock, User, Calendar, AlertTriangle, Download, ArrowUp, ArrowDown, Filter, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const AdminMapComponent = dynamic(() => import('../../components/AdminMapComponent'), { ssr: false });
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -275,12 +276,12 @@ const openAssignModal = (id: number) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 transition-colors">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100 dark:border-gray-700">
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-blue-100 p-3 rounded-full mb-4"><Lock className="text-blue-600" size={32} /></div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
-            <p className="text-gray-500 text-sm mt-1">Authorized municipal personnel only</p>
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mb-4"><Lock className="text-blue-600 dark:text-blue-400" size={32} /></div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Admin Login</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Authorized municipal personnel only</p>
           </div>
           
           <form onSubmit={handleLogin} className="space-y-4">
@@ -306,7 +307,7 @@ const openAssignModal = (id: number) => {
   const resolved = hazards.filter(h => h.status === 'Resolved').length;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col font-sans transition-colors">
       
       
       {/* Image Preview Modal */}
@@ -366,6 +367,7 @@ const openAssignModal = (id: number) => {
           <h1 className="text-xl font-bold">PaveSafe Admin</h1>
         </div>
         <div className="flex items-center gap-3 md:gap-4 flex-wrap justify-center">
+          <ThemeToggle />
           <button 
             onClick={() => setShowExportModal(true)}
             className="flex items-center gap-2 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 px-4 py-1.5 rounded-lg font-medium transition-colors border border-emerald-500/30 text-sm"
