@@ -537,17 +537,17 @@ export default function CommuterPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
             <button onClick={() => setShowLogin(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-800">X</button>
-            <h2 className="text-2xl font-bold mb-2">{isRegistering ? 'Create Alias' : 'Commuter Login'}</h2>
+            <h2 className="text-2xl font-bold mb-2 text-slate-800">{isRegistering ? 'Create Alias' : 'Commuter Login'}</h2>
             <p className="text-sm text-gray-500 mb-6">Use a pseudonym to protect your identity.</p>
             
             <form onSubmit={handleAuth} className="space-y-4">
               <input 
                 type="text" placeholder="Username / Alias" required value={username} onChange={e => setUsername(e.target.value)}
-                className="w-full border p-3 rounded-lg"
+                className="w-full border border-slate-300 p-3 rounded-lg text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input 
                 type="password" placeholder="Password" required value={password} onChange={e => setPassword(e.target.value)}
-                className="w-full border p-3 rounded-lg"
+                className="w-full border border-slate-300 p-3 rounded-lg text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button type="submit" className="w-full bg-blue-600 text-white font-bold text-lg py-5 rounded-xl shadow-md">
                 {isRegistering ? 'Register' : 'Login'}
