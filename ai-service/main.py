@@ -55,7 +55,7 @@ def web_interface():
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg aria-hidden="true" class="w-10 h-10 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             <p class="mb-2 text-sm text-slate-300"><span class="font-semibold text-blue-400">Desktop / Gallery Upload</span></p>
-                            <p class="text-xs text-slate-500">Heuristic Scaling</p>
+                            <p class="text-sm font-medium text-slate-300">Heuristic Scaling</p>
                         </div>
                         <input id="dropzone-file" type="file" class="hidden" multiple accept="image/*" />
                     </label>
@@ -67,7 +67,7 @@ def web_interface():
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg class="w-10 h-10 mb-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                             <p class="mb-2 text-sm text-slate-300"><span class="font-semibold text-emerald-400">Live Camera Upload</span></p>
-                            <p class="text-xs text-emerald-500/70">Locks to rear camera + Sends IMU sensor data</p>
+                            <p class="text-sm font-medium text-emerald-300">Locks to rear camera + Sends IMU sensor data</p>
                         </div>
                         <input id="camera-file" type="file" class="hidden" accept="image/*" capture="environment" />
                     </label>
@@ -183,9 +183,9 @@ def web_interface():
                                 4: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
                                 5: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
                                 7: 'bg-red-500/20 text-red-400 border-red-500/30',
-                                8: 'bg-red-600/30 text-red-300 border-red-500/50',
-                                9: 'bg-purple-500/30 text-purple-300 border-purple-500/50',
-                                10: 'bg-purple-600/40 text-purple-200 border-purple-500/50'
+                                8: 'bg-red-500/40 text-red-100 border-red-500',
+                                9: 'bg-purple-500/40 text-purple-100 border-purple-400',
+                                10: 'bg-fuchsia-600/50 text-fuchsia-100 border-fuchsia-400'
                             };
                             const c = colors[sev] || 'bg-slate-500/20 text-slate-400 border-slate-500/30';
                             severityBadge = `<span class="px-2.5 py-0.5 rounded text-xs font-bold border ${c}">Severity ${sev}</span>`;
@@ -198,7 +198,7 @@ def web_interface():
                             </td>
                             <td class="px-6 py-4">${severityBadge}</td>
                             <td class="px-6 py-4">
-                                <pre class="bg-slate-900 p-3 rounded border border-slate-800 text-[10px] text-emerald-400 overflow-x-auto max-w-[400px] max-h-[120px] overflow-y-auto">${JSON.stringify(data, null, 2)}</pre>
+                                <pre class="bg-slate-900 p-3 rounded border border-slate-800 text-xs text-emerald-300 overflow-x-auto w-full max-h-[250px] overflow-y-auto">${JSON.stringify(data, null, 2)}</pre>
                             </td>
                         `;
                     } catch (err) {
@@ -206,8 +206,8 @@ def web_interface():
                         row.innerHTML = `
                             <td class="px-6 py-4"><img src="${previewUrl}" class="w-16 h-16 object-cover rounded opacity-50"></td>
                             <td class="px-6 py-4 text-red-400">${sourceTag}<br>${file.name}</td>
-                            <td class="px-6 py-4"><span class="bg-red-900 text-red-300 px-2 rounded text-xs">TIMEOUT</span></td>
-                            <td class="px-6 py-4 text-red-400 text-xs">Request failed: ${err.message}</td>
+                            <td class="px-6 py-4"><span class="bg-red-600 text-white font-bold border border-red-400 px-2.5 py-1 rounded text-xs">TIMEOUT</span></td>
+                            <td class="px-6 py-4"><div class="text-red-200 text-sm font-semibold bg-red-900/40 border border-red-800 p-2 rounded">Request failed: ${err.message}</div></td>
                         `;
                     }
                 }
