@@ -524,7 +524,7 @@ export default function CommuterPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold" style={{color: r.severity >= 8 ? '#ef4444' : r.severity >= 4 ? '#f59e0b' : '#22c55e'}}>Sev {r.severity}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${r.status === 'Resolved' ? 'bg-green-100 text-green-700' : r.status === 'Rejected' ? 'bg-red-100 text-red-700' : r.status === 'In Progress' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>{r.status}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${r.status === 'Resolved' ? 'bg-green-100 dark:bg-green-900/60 text-green-700' : r.status === 'Rejected' ? 'bg-red-100 dark:bg-red-900/60 text-red-700' : r.status === 'In Progress' ? 'bg-amber-100 dark:bg-amber-900/60 text-amber-700' : 'bg-blue-100 dark:bg-blue-900/60 text-blue-700'}`}>{r.status}</span>
                   </div>
                 </div>
               ))}
@@ -556,7 +556,7 @@ export default function CommuterPage() {
             </form>
             <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-300">
               {isRegistering ? 'Already have an account?' : 'No account?'} 
-              <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-600 ml-1 font-semibold">
+              <button onClick={() => setIsRegistering(!isRegistering)} className="text-blue-600 dark:text-blue-400 ml-1 font-semibold">
                 {isRegistering ? 'Login' : 'Create one'}
               </button>
             </p>
@@ -565,7 +565,7 @@ export default function CommuterPage() {
       )}
 
       {/* Sidebar */}
-      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white dark:bg-gray-800 shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 dark:border-gray-600 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
+      <div className={`w-full min-h-[100dvh] lg:min-h-0 lg:h-[100dvh] lg:w-96 bg-white dark:bg-gray-800 shadow-xl z-10 flex-col p-6 space-y-8 shrink-0 border-b-2 lg:border-b-0 border-gray-200 dark:border-gray-700 dark:border-gray-600 lg:overflow-y-auto ${isDriveMode ? 'hidden' : 'flex'}`}>
         
         {/* Header & Auth */}
         <div className="flex justify-between items-start">
@@ -583,7 +583,7 @@ export default function CommuterPage() {
                 <div className="flex items-center gap-3">
                 <button 
                   onClick={() => { setShowNotifications(!showNotifications); if(unreadCount > 0) markNotificationsRead(); }}
-                  className="relative p-2 bg-gray-100 rounded-full hover:bg-gray-200 text-slate-600"
+                  className="relative p-2 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:bg-gray-700 text-slate-600"
                 >
                   <Bell size={18} />
                   {unreadCount > 0 && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>}
@@ -593,7 +593,7 @@ export default function CommuterPage() {
                 </button>
               </div>
             ) : (
-              <button onClick={() => setShowLogin(true)} className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">
+              <button onClick={() => setShowLogin(true)} className="text-sm font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/40 px-3 py-1.5 rounded-lg">
                 Sign In
               </button>
             )}
@@ -605,7 +605,7 @@ export default function CommuterPage() {
                 <div className="max-h-60 overflow-y-auto">
                   {notifications.length === 0 ? <p className="p-4 text-sm text-gray-500 dark:text-gray-400">No notifications.</p> : null}
                   {notifications.map(n => (
-                    <div key={n.id} className="p-3 border-b text-sm text-slate-900 dark:text-slate-50 bg-green-50 font-medium">
+                    <div key={n.id} className="p-3 border-b text-sm text-slate-900 dark:text-slate-50 bg-green-50 dark:bg-green-900/40 font-medium">
                       {n.message}
                       <div className="text-xs font-semibold text-slate-500 mt-2">{new Date(n.created_at).toLocaleDateString()}</div>
                     </div>
@@ -629,16 +629,16 @@ export default function CommuterPage() {
         )}
 
         {/* Mode Toggle */}
-        <div className="flex bg-gray-100 rounded-lg p-1">
+        <div className="flex bg-gray-100 dark:bg-gray-900 rounded-lg p-1">
           <button 
             onClick={() => setRouteMode(false)}
-            className={`flex-1 py-4 text-base font-bold rounded-lg ${!routeMode ? 'bg-white dark:bg-gray-800 shadow-sm text-blue-600' : 'text-gray-500 dark:text-gray-400'}`}
+            className={`flex-1 py-4 text-base font-bold rounded-lg ${!routeMode ? 'bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`}
           >
             Report Hazard
           </button>
           <button 
             onClick={() => setRouteMode(true)}
-            className={`flex-1 py-4 text-base font-bold rounded-lg ${routeMode ? 'bg-white dark:bg-gray-800 shadow-sm text-purple-600' : 'text-gray-500 dark:text-gray-400'}`}
+            className={`flex-1 py-4 text-base font-bold rounded-lg ${routeMode ? 'bg-white dark:bg-gray-800 shadow-sm text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-gray-400'}`}
           >
             Safe Routes
           </button>
@@ -647,7 +647,7 @@ export default function CommuterPage() {
         {/* Dynamic Content Area */}
         {!routeMode ? (
           // REPORT HAZARD UI
-          <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-600 flex-1 flex flex-col">
+          <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 dark:border-gray-600 flex-1 flex flex-col">
             <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg mb-6 flex items-center gap-2">
               <AlertTriangle size={18} className="text-amber-500" />
               Report New Hazard
@@ -655,7 +655,7 @@ export default function CommuterPage() {
             
             {!user ? (
               <div className="flex flex-col items-center justify-center flex-1 text-center bg-white dark:bg-gray-800 rounded-lg border p-6 space-y-4 shadow-sm">
-                <div className="bg-blue-100 p-3 rounded-full">
+                <div className="bg-blue-100 dark:bg-blue-900/60 p-3 rounded-full">
                   <Lock className="text-blue-500" size={24} />
                 </div>
                 <div>
@@ -681,7 +681,7 @@ export default function CommuterPage() {
                     />
                     <label 
                       htmlFor="camera-input" 
-                      className={`flex items-center justify-center gap-2 w-full p-8 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 cursor-not-allowed opacity-50' : 'border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100'}`}
+                      className={`flex items-center justify-center gap-2 w-full p-8 border-2 border-dashed rounded-lg transition-colors ${!location ? 'border-gray-200 dark:border-gray-700 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 cursor-not-allowed opacity-50' : 'border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100'}`}
                     >
                       {photo ? <CheckCircle className="text-green-500" /> : <Camera className={!location ? "text-gray-300" : "text-gray-400"} />}
                       <span className="text-base font-bold text-gray-600 dark:text-gray-300">
@@ -692,7 +692,7 @@ export default function CommuterPage() {
                 </div>
 
                 {location ? (
-                  <p className="text-sm text-green-600 flex items-center gap-1"><CheckCircle size={12} /> GPS Locked</p>
+                  <p className="text-sm text-green-600 dark:text-green-400 flex items-center gap-1"><CheckCircle size={12} /> GPS Locked</p>
                 ) : (
                   <p className="text-sm text-red-500 flex items-center gap-1"><AlertTriangle size={12} /> Waiting for GPS...</p>
                 )}
@@ -708,16 +708,16 @@ export default function CommuterPage() {
           </div>
         ) : (
           // SAFE ROUTE UI
-          <div className="bg-purple-50 p-6 rounded-2xl border border-purple-100 flex-1 flex flex-col">
-            <h3 className="font-semibold text-purple-800 mb-2 flex items-center gap-2">
+          <div className="bg-purple-50 dark:bg-purple-900/40 p-6 rounded-2xl border border-purple-100 dark:border-purple-800/50 flex-1 flex flex-col">
+            <h3 className="font-semibold text-purple-800 dark:text-purple-300 mb-2 flex items-center gap-2">
               <MapPin size={18} /> Plan Safe Route
             </h3>
             
             <div className="space-y-3 mb-4 mt-2">
-              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 dark:border-gray-600 bg-white'}`}>
+              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'start' ? 'border-blue-500 dark:border-blue-500/50 bg-blue-50' : 'border-gray-200 dark:border-gray-700 dark:border-gray-600 bg-white dark:bg-gray-800'}`}>
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Start Point</div>
-                  <button onClick={() => setSelectingPoint('start')} className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded hover:bg-blue-200">
+                  <button onClick={() => setSelectingPoint('start')} className="text-sm bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-400 px-2 py-1 rounded hover:bg-blue-200">
                     {selectingPoint === 'start' ? 'Click Map Now' : 'Select on Map'}
                   </button>
                 </div>
@@ -742,7 +742,7 @@ export default function CommuterPage() {
                   {startResults.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border rounded shadow-lg max-h-48 overflow-y-auto">
                       {startResults.map(res => (
-                        <div key={res.place_id} onClick={() => selectSearchResult(res, 'start')} className="p-2 hover:bg-gray-100 text-sm cursor-pointer border-b last:border-b-0 truncate">
+                        <div key={res.place_id} onClick={() => selectSearchResult(res, 'start')} className="p-2 hover:bg-gray-100 dark:bg-gray-800 text-sm cursor-pointer border-b last:border-b-0 truncate">
                           {res.display_name}
                         </div>
                       ))}
@@ -751,10 +751,10 @@ export default function CommuterPage() {
                 </div>
               </div>
 
-              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 dark:border-gray-600 bg-white'}`}>
+              <div className={`p-5 rounded-xl border-2 transition-colors ${selectingPoint === 'end' ? 'border-purple-500 dark:border-purple-500/50 bg-purple-50' : 'border-gray-200 dark:border-gray-700 dark:border-gray-600 bg-white dark:bg-gray-800'}`}>
                 <div className="flex justify-between items-center mb-2">
                   <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</div>
-                  <button onClick={() => setSelectingPoint('end')} className="text-sm bg-purple-100 text-purple-600 px-2 py-1 rounded hover:bg-purple-200">
+                  <button onClick={() => setSelectingPoint('end')} className="text-sm bg-purple-100 dark:bg-purple-900/60 text-purple-600 dark:text-purple-400 px-2 py-1 rounded hover:bg-purple-200">
                     {selectingPoint === 'end' ? 'Click Map Now' : 'Select on Map'}
                   </button>
                 </div>
@@ -779,7 +779,7 @@ export default function CommuterPage() {
                   {endResults.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border rounded shadow-lg max-h-48 overflow-y-auto">
                       {endResults.map(res => (
-                        <div key={res.place_id} onClick={() => selectSearchResult(res, 'end')} className="p-2 hover:bg-gray-100 text-sm cursor-pointer border-b last:border-b-0 truncate">
+                        <div key={res.place_id} onClick={() => selectSearchResult(res, 'end')} className="p-2 hover:bg-gray-100 dark:bg-gray-800 text-sm cursor-pointer border-b last:border-b-0 truncate">
                           {res.display_name}
                         </div>
                       ))}
@@ -789,11 +789,11 @@ export default function CommuterPage() {
               </div>
             </div>
 
-            <p className="text-sm text-purple-600 mb-4 bg-purple-100 p-2 rounded-md italic">
+            <p className="text-sm text-purple-600 dark:text-purple-400 mb-4 bg-purple-100 dark:bg-purple-900/60 p-2 rounded-md italic">
               {selectingPoint === 'start' ? 'Click anywhere on the map to set your Custom Start Point.' : 'Click anywhere on the map to set your Destination.'}
             </p>
             
-            {isRouting && <p className="text-sm text-purple-600 animate-pulse font-medium text-center">Calculating route safety...</p>}
+            {isRouting && <p className="text-sm text-purple-600 dark:text-purple-400 animate-pulse font-medium text-center">Calculating route safety...</p>}
             
             {routeSafety && !isRouting && (
               <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border mt-4">
@@ -805,10 +805,10 @@ export default function CommuterPage() {
                 </div>
                 <div className="space-y-1 mt-3">
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Hazards on Route: <strong className="text-gray-800 dark:text-gray-100">{routeSafety.hazardsCount}</strong></p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Critical Hazards (8-10): <strong className="text-red-600">{routeSafety.criticalHazards}</strong></p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Critical Hazards (8-10): <strong className="text-red-600 dark:text-red-400">{routeSafety.criticalHazards}</strong></p>
                 </div>
                 {routeSafety.safetyScore < 50 && (
-                  <div className="mt-3 bg-red-50 p-2 rounded text-sm text-red-700 border border-red-200">
+                  <div className="mt-3 bg-red-50 dark:bg-red-900/40 p-2 rounded text-sm text-red-700 dark:text-red-400 border border-red-200">
                     Warning: This route passes through highly hazardous zones. Proceed with extreme caution.
                   </div>
                 )}
@@ -827,12 +827,12 @@ export default function CommuterPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400 italic">No rankings yet.</p>
             ) : (
               leaderboard.map((u, index) => (
-                <div key={u.username} className={`flex justify-between items-center p-2 rounded-lg border ${index === 0 ? 'bg-yellow-50 border-yellow-200' : index === 1 ? 'bg-gray-100 border-gray-300 dark:border-gray-600' : index === 2 ? 'bg-orange-50 border-orange-200' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'}`}>
+                <div key={u.username} className={`flex justify-between items-center p-2 rounded-lg border ${index === 0 ? 'bg-yellow-50 dark:bg-yellow-900/40 border-yellow-200' : index === 1 ? 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600' : index === 2 ? 'bg-orange-50 dark:bg-orange-900/40 border-orange-200' : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'}`}>
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <span className="text-gray-500 dark:text-gray-400 font-bold w-4">{index + 1}.</span>
                     <span className="text-gray-800 dark:text-gray-100">@{u.username}</span>
                   </div>
-                  <span className="text-sm font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full">{u.points} pts</span>
+                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/60 px-2 py-1 rounded-full">{u.points} pts</span>
                 </div>
               ))
             )}

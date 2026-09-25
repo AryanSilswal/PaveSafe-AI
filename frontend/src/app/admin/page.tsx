@@ -184,9 +184,9 @@ const openAssignModal = (id: number) => {
 
   const getSeverityBadge = (severity: number) => {
     const baseClasses = "px-2 py-1 rounded-full text-xs font-semibold flex items-center justify-center w-8 h-8";
-    if (severity >= 8) return <span className={`${baseClasses} bg-red-100 text-red-700 ring-2 ring-red-400`}>{severity}</span>;
-    if (severity >= 4) return <span className={`${baseClasses} bg-amber-100 text-amber-700 ring-2 ring-amber-400`}>{severity}</span>;
-    return <span className={`${baseClasses} bg-green-100 text-green-700 ring-2 ring-green-400`}>{severity}</span>;
+    if (severity >= 8) return <span className={`${baseClasses} bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-400 ring-2 ring-red-400`}>{severity}</span>;
+    if (severity >= 4) return <span className={`${baseClasses} bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-400 ring-2 ring-amber-400`}>{severity}</span>;
+    return <span className={`${baseClasses} bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-400 ring-2 ring-green-400`}>{severity}</span>;
   };
 
   const requestSort = (key: string) => {
@@ -279,7 +279,7 @@ const openAssignModal = (id: number) => {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 transition-colors">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100 dark:border-gray-700">
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mb-4"><Lock className="text-blue-600 dark:text-blue-400" size={32} /></div>
+            <div className="bg-blue-100 dark:bg-blue-900/60 dark:bg-blue-900/30 p-3 rounded-full mb-4"><Lock className="text-blue-600 dark:text-blue-400" size={32} /></div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Admin Login</h1>
             <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Authorized municipal personnel only</p>
           </div>
@@ -329,7 +329,7 @@ const openAssignModal = (id: number) => {
               <button onClick={() => handleExport('filtered')} className="w-full bg-emerald-600 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-700">
                 Export Current View ({processedHazards.length})
               </button>
-              <button onClick={() => handleExport('all')} className="w-full bg-gray-200 text-gray-800 dark:text-gray-100 py-2.5 rounded-lg font-semibold hover:bg-gray-300">
+              <button onClick={() => handleExport('all')} className="w-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 py-2.5 rounded-lg font-semibold hover:bg-gray-300">
                 Export All Data ({hazards.length})
               </button>
             </div>
@@ -342,7 +342,7 @@ const openAssignModal = (id: number) => {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 relative">
             <button onClick={() => setShowAssignModal(false)} className="absolute top-4 right-4 text-gray-500 dark:text-gray-400"><X size={20}/></button>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100"><User className="text-blue-600"/> Assign Repair Crew</h3>
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-800 dark:text-slate-100"><User className="text-blue-600 dark:text-blue-400"/> Assign Repair Crew</h3>
             <form onSubmit={submitAssignment} className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-200">Worker/Contractor Name</label>
@@ -388,22 +388,22 @@ const openAssignModal = (id: number) => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
             <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Hazards</p><h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{total}</h2></div>
-            <div className="bg-blue-100 p-3 rounded-full"><List className="text-blue-600" /></div>
+            <div className="bg-blue-100 dark:bg-blue-900/60 p-3 rounded-full"><List className="text-blue-600 dark:text-blue-400" /></div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Active Critical Hazards</p><h2 className="text-2xl font-bold text-red-600">{critical}</h2></div>
-            <div className="bg-red-100 p-3 rounded-full"><AlertTriangle className="text-red-600" /></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Active Critical Hazards</p><h2 className="text-2xl font-bold text-red-600 dark:text-red-400">{critical}</h2></div>
+            <div className="bg-red-100 dark:bg-red-900/60 p-3 rounded-full"><AlertTriangle className="text-red-600 dark:text-red-400" /></div>
           </div>
           <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
-            <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Resolved</p><h2 className="text-2xl font-bold text-green-600">{resolved}</h2></div>
-            <div className="bg-green-100 p-3 rounded-full"><CheckCircle className="text-green-600" /></div>
+            <div><p className="text-sm text-gray-500 dark:text-gray-400">Total Resolved</p><h2 className="text-2xl font-bold text-green-600 dark:text-green-400">{resolved}</h2></div>
+            <div className="bg-green-100 dark:bg-green-900/60 p-3 rounded-full"><CheckCircle className="text-green-600 dark:text-green-400" /></div>
           </div>
         </div>
 
         {/* Analytics Panel */}
         {showAnalytics && (
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-600 p-4">
               <h3 className="font-bold text-gray-700 dark:text-gray-200 text-sm mb-3 flex items-center gap-2">📈 Severity Trend (Last 30 Days)</h3>
               {trendData.length === 0 ? (
                 <p className="text-sm text-gray-400 italic text-center py-8">No data yet. Reports will appear here.</p>
@@ -421,19 +421,19 @@ const openAssignModal = (id: number) => {
                 </ResponsiveContainer>
               )}
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-600 p-4">
               <h3 className="font-bold text-gray-700 dark:text-gray-200 text-sm mb-3 flex items-center gap-2">🔁 Chronic Problem Areas</h3>
               {chronicHotspots.length === 0 ? (
                 <p className="text-sm text-gray-400 italic text-center py-8">No recurring hotspots detected yet.</p>
               ) : (
                 <div className="space-y-2">
                   {chronicHotspots.map((h: any) => (
-                    <div key={h.id} className="flex items-center justify-between p-3 bg-red-50 border border-red-100 rounded-lg">
+                    <div key={h.id} className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/40 border border-red-100 rounded-lg">
                       <div>
                         <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">Near #{h.id}</span>
                         <span className="text-xs text-gray-400 ml-2">{parseFloat(h.latitude).toFixed(4)}, {parseFloat(h.longitude).toFixed(4)}</span>
                       </div>
-                      <span className="text-xs font-bold bg-red-100 text-red-700 px-2 py-1 rounded-full">{h.clusterCount} reports</span>
+                      <span className="text-xs font-bold bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-400 px-2 py-1 rounded-full">{h.clusterCount} reports</span>
                     </div>
                   ))}
                 </div>
@@ -445,7 +445,7 @@ const openAssignModal = (id: number) => {
         {viewMode === 'list' ? (
           <div className="max-w-7xl mx-auto flex flex-col gap-4">
             {/* Filter Bar */}
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 flex flex-wrap gap-4 items-end">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-600 flex flex-wrap gap-4 items-end">
               <div>
                 <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Status</label>
                 <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-slate-300 dark:border-slate-600 p-2 rounded-lg text-sm bg-gray-50 dark:bg-gray-900 text-slate-900 dark:text-slate-50 placeholder:text-slate-400">
@@ -477,24 +477,24 @@ const openAssignModal = (id: number) => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 dark:border-gray-600 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left whitespace-nowrap select-none">
-                  <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600">
+                  <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 dark:border-gray-600">
                     <tr>
-                      <th onClick={() => requestSort('id')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">ID {getSortIcon('id')}</th>
-                      <th onClick={() => requestSort('severity')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Severity {getSortIcon('severity')}</th>
-                      <th onClick={() => requestSort('status')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Status {getSortIcon('status')}</th>
-                      <th onClick={() => requestSort('confirmation_count')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Upvotes {getSortIcon('confirmation_count')}</th>
-                      <th onClick={() => requestSort('assignment')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Assignment {getSortIcon('assignment')}</th>
-                      <th onClick={() => requestSort('reporter')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Reporter {getSortIcon('reporter')}</th>
-                      <th onClick={() => requestSort('reported_at')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100">Date {getSortIcon('reported_at')}</th>
+                      <th onClick={() => requestSort('id')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">ID {getSortIcon('id')}</th>
+                      <th onClick={() => requestSort('severity')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">Severity {getSortIcon('severity')}</th>
+                      <th onClick={() => requestSort('status')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">Status {getSortIcon('status')}</th>
+                      <th onClick={() => requestSort('confirmation_count')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">Upvotes {getSortIcon('confirmation_count')}</th>
+                      <th onClick={() => requestSort('assignment')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">Assignment {getSortIcon('assignment')}</th>
+                      <th onClick={() => requestSort('reporter')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">Reporter {getSortIcon('reporter')}</th>
+                      <th onClick={() => requestSort('reported_at')} className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm cursor-pointer hover:bg-gray-100 dark:bg-gray-800">Date {getSortIcon('reported_at')}</th>
                       <th className="p-4 font-semibold text-gray-600 dark:text-gray-300 text-sm">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {processedHazards.map((hazard) => (
-                      <tr key={hazard.id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <tr key={hazard.id} className="border-b border-gray-50 hover:bg-gray-50 dark:bg-gray-900">
                         <td className="p-4 text-sm text-gray-500 dark:text-gray-400">#{hazard.id}</td>
                         <td className="p-4">{getSeverityBadge(hazard.severity)}</td>
                         <td className="p-4">
@@ -507,7 +507,7 @@ const openAssignModal = (id: number) => {
                             {hazard.status}
                           </span>
                         </td>
-                        <td className="p-4 font-semibold text-blue-600">👍 {hazard.confirmation_count || 0}</td>
+                        <td className="p-4 font-semibold text-blue-600 dark:text-blue-400">👍 {hazard.confirmation_count || 0}</td>
                         <td className="p-4">
                           {hazard.assigned_worker ? (
                             <div className="flex flex-col">
@@ -536,7 +536,7 @@ const openAssignModal = (id: number) => {
                             {hazard.image_url && (
                               <button 
                                 onClick={() => setPreviewImage(hazard.image_url)}
-                                className="text-xs bg-blue-100 text-blue-700 px-3 py-1.5 rounded-md font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
+                                className="text-xs bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-md font-medium hover:bg-blue-200 transition-colors flex items-center gap-1"
                               >
                                 Photo
                               </button>
@@ -544,21 +544,21 @@ const openAssignModal = (id: number) => {
                             <button 
                               onClick={() => openAssignModal(hazard.id)}
                               disabled={hazard.status === 'Resolved' || hazard.status === 'Rejected'}
-                              className="text-xs bg-amber-100 text-amber-700 px-3 py-1.5 rounded-md font-medium hover:bg-amber-200 disabled:opacity-50 transition-colors"
+                              className="text-xs bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-400 px-3 py-1.5 rounded-md font-medium hover:bg-amber-200 disabled:opacity-50 transition-colors"
                             >
                               {hazard.status === 'In Progress' ? 'Reassign' : 'Dispatch'}
                             </button>
                             <button 
                               onClick={() => markResolved(hazard.id)}
                               disabled={hazard.status === 'Resolved' || hazard.status === 'Reported' || hazard.status === 'Rejected'}
-                              className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-md font-medium hover:bg-green-200 disabled:opacity-50 transition-colors"
+                              className="text-xs bg-green-100 dark:bg-green-900/60 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-md font-medium hover:bg-green-200 disabled:opacity-50 transition-colors"
                             >
                               Resolve
                             </button>
                             {hazard.status === 'Reported' && (
                               <button 
                                 onClick={() => rejectHazard(hazard.id)}
-                                className="text-xs bg-red-100 text-red-700 px-3 py-1.5 rounded-md font-medium hover:bg-red-200 transition-colors"
+                                className="text-xs bg-red-100 dark:bg-red-900/60 text-red-700 dark:text-red-400 px-3 py-1.5 rounded-md font-medium hover:bg-red-200 transition-colors"
                               >
                                 Reject
                               </button>
@@ -577,7 +577,7 @@ const openAssignModal = (id: number) => {
             </div>
           </div>
         ) : (
-          <div className="h-[75vh] max-w-7xl mx-auto rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-600 relative z-0">
+          <div className="h-[75vh] max-w-7xl mx-auto rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-700 dark:border-gray-600 relative z-0">
             <AdminMapComponent hazards={processedHazards} />
           </div>
         )}

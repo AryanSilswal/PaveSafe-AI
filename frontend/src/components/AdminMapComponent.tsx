@@ -176,10 +176,20 @@ export default function AdminMapComponent({ hazards }: { hazards: any[] }) {
       </div>
 
       <MapContainer center={[28.6139, 77.2090]} zoom={11} style={{ height: '100%', width: '100%' }}>
-        <TileLayer
-              attribution={isDarkMode ? "Tiles &copy; Esri" : "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"}
-              url={isDarkMode ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+        <LayersControl position="topright" key={theme}>
+          <LayersControl.BaseLayer checked={!isDarkMode} name="Street View">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer checked={isDarkMode} name="Satellite View">
+            <TileLayer
+              attribution='Tiles &copy; Esri'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
 
         <HeatmapLayer hazards={localHazards} visible={showHeatmap} />
         <ClusterLayer hazards={localHazards} statusFilter={statusFilter} onUpvote={handleUpvote} />
