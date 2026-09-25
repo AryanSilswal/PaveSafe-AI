@@ -349,7 +349,7 @@ const openAssignModal = (id: number) => {
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Resolution Deadline</label>
-                <input type="datetime-local" required value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 rounded text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <input type="date" required min={new Date(Date.now() + 86400000).toISOString().split('T')[0]} value={deadline} onChange={e=>setDeadline(e.target.value)} className="w-full mt-1 p-2 border border-slate-300 rounded text-slate-900 placeholder:text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold mt-4">
                 {isSubmitting ? 'Assigning...' : 'Dispatch Crew'}

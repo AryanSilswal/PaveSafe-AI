@@ -598,13 +598,13 @@ export default function CommuterPage() {
             {/* Notifications Dropdown */}
             {showNotifications && (
               <div className="absolute right-0 top-12 w-64 bg-white shadow-lg border rounded-lg overflow-hidden z-50">
-                <div className="p-3 bg-gray-50 border-b font-semibold text-sm">Notifications</div>
+                <div className="p-3 bg-gray-50 border-b font-semibold text-sm text-slate-800">Notifications</div>
                 <div className="max-h-60 overflow-y-auto">
                   {notifications.length === 0 ? <p className="p-4 text-sm text-gray-500">No notifications.</p> : null}
                   {notifications.map(n => (
-                    <div key={n.id} className="p-3 border-b text-sm text-gray-700 bg-green-50">
+                    <div key={n.id} className="p-3 border-b text-sm text-slate-900 bg-green-50 font-medium">
                       {n.message}
-                      <div className="text-sm text-gray-400 mt-1">{new Date(n.created_at).toLocaleDateString()}</div>
+                      <div className="text-xs font-semibold text-slate-500 mt-2">{new Date(n.created_at).toLocaleDateString()}</div>
                     </div>
                   ))}
                 </div>
@@ -725,7 +725,7 @@ export default function CommuterPage() {
                       value={startSearchQuery}
                       onChange={(e) => setStartSearchQuery(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(startSearchQuery, 'start'); }}
-                      className="w-full p-4 border rounded-lg text-base bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-4 border border-slate-300 rounded-lg text-base text-slate-900 placeholder:text-slate-400 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500"
                     />
                     <button 
                       onClick={() => searchAddress(startSearchQuery, 'start')}
@@ -762,7 +762,7 @@ export default function CommuterPage() {
                       value={endSearchQuery}
                       onChange={(e) => setEndSearchQuery(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') searchAddress(endSearchQuery, 'end'); }}
-                      className="w-full p-4 border rounded-lg text-base bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500"
+                      className="w-full p-4 border border-slate-300 rounded-lg text-base text-slate-900 placeholder:text-slate-400 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-purple-500"
                     />
                     <button 
                       onClick={() => searchAddress(endSearchQuery, 'end')}
