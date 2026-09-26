@@ -51,7 +51,7 @@ def web_interface():
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <!-- Dropzone (Gallery/Desktop) -->
                 <div class="flex items-center justify-center w-full">
-                    <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-800 hover:bg-slate-700 transition-colors shadow-lg">
+                    <label id="dropzone-label" for="dropzone-file" class="flex flex-col items-center justify-center w-full h-48 border-2 border-slate-600 border-dashed rounded-xl cursor-pointer bg-slate-800 hover:bg-slate-700 transition-colors shadow-lg">
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <svg aria-hidden="true" class="w-10 h-10 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                             <p class="mb-2 text-sm text-slate-300"><span class="font-semibold text-blue-400">Desktop / Gallery Upload</span></p>
@@ -213,7 +213,37 @@ def web_interface():
                 }
             }
 
+
+            const dropzoneLabel = document.getElementById('dropzone-label');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropzoneLabel.addEventListener(eventName, preventDefaults, false);
+            });
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropzoneLabel.addEventListener(eventName, () => {
+                    dropzoneLabel.classList.add('border-blue-500', 'bg-slate-700');
+                    dropzoneLabel.classList.remove('border-slate-600', 'bg-slate-800');
+                }, false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropzoneLabel.addEventListener(eventName, () => {
+                    dropzoneLabel.classList.remove('border-blue-500', 'bg-slate-700');
+                    dropzoneLabel.classList.add('border-slate-600', 'bg-slate-800');
+                }, false);
+            });
+            
+            dropzoneLabel.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                processFiles(files, false);
+            }, false);
+            
             document.getElementById('dropzone-file').addEventListener('change', (e) => { processFiles(e.target.files, false); e.target.value = ''; });
+
             document.getElementById('camera-file').addEventListener('change', (e) => { processFiles(e.target.files, true); e.target.value = ''; });
         </script>
     </body>
