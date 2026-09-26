@@ -251,7 +251,7 @@ export default function CommuterPage() {
       alert('Hazard reported successfully! Thank you for keeping the city safe.');
     } catch (error) {
       console.error('Report failed', error);
-      alert('Failed to report hazard.');
+      alert(error.response?.data?.error || 'Failed to report hazard.');
     } finally {
       setIsReporting(false);
     }

@@ -487,6 +487,16 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
         # Execution of the 6-Stage Pure Function Contract
         quality = S0_quality_gate(img)
         detection = S1_detect(img)
+        
+        # EARLY REJECTION GATE: If no pothole was found (or confidence is very low), reject it.
+        if detection.get("confidence", 0.0) < 0.35:
+            del img
+            if 'contents' in locals(): del contents
+            if 'nparr' in locals(): del nparr
+            import gc
+            gc.collect()
+            return {"error": "No hazard detected in image. Please ensure the pothole is clearly visible.", "severity": 0}
+
         rim = S2_extract_rim(detection.get("mock_mask"))
         
         import json

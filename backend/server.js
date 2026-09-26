@@ -161,6 +161,9 @@ app.post('/api/hazards/report', authenticateToken, upload.single('image'), async
     let severity = 5;
     try {
       const aiResponse = await axios.post(`${process.env.AI_SERVICE_URL}/analyze`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+      if (aiResponse.data.error && aiResponse.data.severity === 0) {
+        return res.status(400).json({ error: aiResponse.data.error });
+      }
       severity = aiResponse.data.severity || 5;
     } catch (aiError) { console.error('AI Service Error:', aiError.message); }
 
