@@ -590,6 +590,8 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
         
         return response_schema
 
+    except HTTPException as he:
+        raise he
     except Exception as e:
         # Never swallow errors silently (as per roadmap)
         return {"severity": 5, "error": str(e), "traceback": "Failed at pipeline execution"}
