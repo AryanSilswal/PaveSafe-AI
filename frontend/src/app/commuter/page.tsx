@@ -249,7 +249,7 @@ export default function CommuterPage() {
       fetchHazards(); // Refresh map
       if (user) fetchUserProfile(); // Points might have updated
       alert('Hazard reported successfully! Thank you for keeping the city safe.');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Report failed', error);
       alert(error.response?.data?.error || 'Failed to report hazard.');
     } finally {
