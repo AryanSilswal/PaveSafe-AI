@@ -502,7 +502,7 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         if img is None:
-            return {"severity": 5, "error": "Could not decode image"}
+            return {"severity": 0, "error": "Unsupported image format (e.g. .avif). Please upload a standard JPG or PNG.", "status": "failed"}
             
         # OOM PROTECTION: Render Free Tier only has 512MB RAM.
         # A raw 4K smartphone photo takes ~100MB of RAM uncompressed. Resize it immediately.
@@ -512,7 +512,7 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
             img = cv2.resize(img, (0,0), fx=scale, fy=scale)
             
         if img is None: # Dummy check to replace the one we consumed
-            return {"severity": 5, "error": "Could not decode image"}
+            return {"severity": 0, "error": "Unsupported image format (e.g. .avif). Please upload a standard JPG or PNG.", "status": "failed"}
 
         # Execution of the 6-Stage Pure Function Contract
         quality = S0_quality_gate(img)
@@ -523,7 +523,6 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
             del img
             if 'contents' in locals(): del contents
             if 'nparr' in locals(): del nparr
-            import gc
             gc.collect()
             return {"error": "No hazard detected in image. Please ensure the pothole is clearly visible.", "severity": 0}
 
