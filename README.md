@@ -44,6 +44,11 @@ The pipeline executes as a series of pure functions:
 
 ## ✨ Core Features
 
+### 🎨 True Dark Mode & Map Auto-Toggling
+* **Perfect Dark Mode:** The UI utilizes Tailwind CSS class-based dark mode, ensuring high-contrast readability across all nested cards, buttons, and text elements without causing "camouflage" or accessibility issues.
+* **Synchronous State:** Powered by a robust `MutationObserver` React hook, dark mode state synchronizes flawlessly across the entire DOM tree without relying on heavy React Context providers.
+* **Auto-Toggling Satellite View:** When switching to Dark Mode, Leaflet maps intelligently auto-toggle from standard OpenStreetMap layers to high-contrast Esri Satellite imagery, and revert to Street View on Light Mode, whilst still preserving manual Layer Control capabilities.
+
 ### 🚗 Commuter Module (Mobile-First)
 * **Live Drive Mode:** Floating Waze-style UI. Uses the HTML5 Geolocation API (`watchPosition`) to track user speed and location.
 * **Dynamic Geofence Warnings:** Calculates distance using the Haversine formula. The warning radius scales dynamically based on velocity: `30 meters + (Speed in m/s * 5 seconds)`.
