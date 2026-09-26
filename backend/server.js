@@ -165,7 +165,13 @@ app.post('/api/hazards/report', authenticateToken, upload.single('image'), async
         return res.status(400).json({ error: aiResponse.data.error });
       }
       severity = aiResponse.data.severity || 5;
-    } catch (aiError) { console.error('AI Service Error:', aiError.message); }
+    } catch (aiError) { 
+      console.error('AI Service Error:', aiError.message); 
+      if (aiError.response && aiError.response.status === 422) {
+        return res.status(400).json({ error: aiError.response.data.detail || "No hazard detected in image." });
+      }
+      // If the AI service is completely down (502, timeout), we swallow the error and accept the report as a default severity 5 so commuters can still report hazards manually.
+    }
 
     let cloudUpload = { secure_url: null, public_id: null };
     try { cloudUpload = await uploadToCloudinary(image.buffer); } catch(e) { console.error('Cloudinary error', e); }

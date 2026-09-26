@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile, Form
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
@@ -286,37 +286,38 @@ def S0_quality_gate(img):
     passed = laplacian_var > 100.0  # Threshold to be tuned
     return {"passed": bool(passed), "blur_laplacian_var": float(round(laplacian_var, 1)), "roi": "lower_60pct"}
 
-def S1_detect(img):
+def S1_detect_all(img):
     """Instance masks + class + confidence using trained YOLOv8-seg"""
     if model is None:
         raise Exception("YOLO model not loaded. Missing best.pt?")
 
-    # Run YOLO inference
     results = model(img, verbose=False)
     
-    # Check if anything was detected and if masks are available
     if len(results) == 0 or len(results[0].boxes) == 0 or results[0].masks is None:
-        return {"class": "none", "confidence": 0.0, "mock_mask": None}
+        return []
         
-    # Get the highest confidence detection (first item)
-    first_box = results[0].boxes[0]
-    confidence = float(first_box.conf[0])
-    class_name = model.names[int(first_box.cls[0])]
-    
-    # Extract the mask tensor and convert to numpy array
-    mask_tensor = results[0].masks.data[0].cpu().numpy()
-    
-    # Resize the mask back to the original image dimensions
+    detections = []
     h, w = img.shape[:2]
-    mask_resized = cv2.resize(mask_tensor, (w, h), interpolation=cv2.INTER_NEAREST)
     
-    # Convert to standard 8-bit binary mask (0 and 255)
-    mask_binary = (mask_resized * 255).astype(np.uint8)
-    
-    rel_w = float(first_box.xywhn[0][2])
-    rel_h = float(first_box.xywhn[0][3])
-    
-    return {"class": class_name, "confidence": round(confidence, 3), "mock_mask": mask_binary, "rel_w": rel_w, "rel_h": rel_h}
+    for i, box in enumerate(results[0].boxes):
+        conf = float(box.conf[0])
+        if conf < 0.35:
+            continue
+            
+        class_name = model.names[int(box.cls[0])]
+        mask_tensor = results[0].masks.data[i].cpu().numpy()
+        mask_resized = cv2.resize(mask_tensor, (w, h), interpolation=cv2.INTER_NEAREST)
+        mask_binary = (mask_resized * 255).astype(np.uint8)
+        
+        detections.append({
+            "class": class_name,
+            "confidence": round(conf, 3),
+            "mock_mask": mask_binary,
+            "rel_w": float(box.xywhn[0][2]),
+            "rel_h": float(box.xywhn[0][3])
+        })
+        
+    return detections
 
 def S2_extract_rim(mask):
     """Extract physical shape contours and calculate solidity/compactness using OpenCV"""
@@ -446,18 +447,16 @@ def S4_estimate_depth(img, mask):
     }
 
 def S5_severity(geometry, depth):
-    """Dynamic ASTM tier mapping based on depth and width"""
+    """Dynamic ASTM tier mapping based on depth and width (Prioritizing IPM Width over Fragile Depth)"""
     width_m = geometry.get("chord_width_m", 0.42)
     depth_ordinal = depth.get("ordinal", "unknown")
     
-    if depth_ordinal == "shallow":
-        tier = "Low"
-    elif depth_ordinal == "moderate":
-        tier = "Medium" if width_m >= 0.3 else "Low"
-    elif depth_ordinal == "deep":
-        tier = "High" if width_m >= 0.3 else "Medium"
+    if width_m >= 1.0:
+        tier = "High" # Massive crater is High regardless of shadows (could be flooded)
+    elif width_m >= 0.5:
+        tier = "Medium" if depth_ordinal == "shallow" else "High"
     else:
-        tier = "Medium"
+        tier = "Medium" if depth_ordinal == "deep" else "Low"
 
     return {
         "standard": "ASTM_D6433",
@@ -467,15 +466,14 @@ def S5_severity(geometry, depth):
     }
 
 def S6_vehicle_risk(geometry, depth):
-    """Dynamic vehicle risk based on geometry (Tire bridging simulation)"""
+    """Dynamic vehicle risk prioritizing width for flooded scenarios"""
     width_m = geometry.get("chord_width_m", 0.42)
     depth_ordinal = depth.get("ordinal", "unknown")
     
-    # Average scooter tire is ~0.24m diameter. Will drop if width >= 0.24
-    if width_m >= 0.24 and depth_ordinal == "deep":
+    if width_m >= 0.8:
         scooter_tier = "Critical"
-    elif width_m >= 0.24 and depth_ordinal == "moderate":
-        scooter_tier = "High"
+    elif width_m >= 0.24:
+        scooter_tier = "Critical" if depth_ordinal == "deep" else "High"
     elif width_m < 0.15 and depth_ordinal == "shallow":
         scooter_tier = "Low"
     else:
@@ -516,18 +514,12 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
 
         # Execution of the 6-Stage Pure Function Contract
         quality = S0_quality_gate(img)
-        detection = S1_detect(img)
+        detections = S1_detect_all(img)
         
-        # EARLY REJECTION GATE: If no pothole was found (or confidence is very low), reject it.
-        if detection.get("confidence", 0.0) < 0.35:
-            del img
-            if 'contents' in locals(): del contents
-            if 'nparr' in locals(): del nparr
-            gc.collect()
-            return {"error": "No hazard detected in image. Please ensure the pothole is clearly visible.", "severity": 0}
+        if not detections:
+            # Cleanup and throw 422 Unprocessable Entity
+            raise HTTPException(status_code=422, detail="No hazard detected in image. Please ensure the pothole is clearly visible.")
 
-        rim = S2_extract_rim(detection.get("mock_mask"))
-        
         import json
         try:
             parsed_meta = json.loads(metadata)
@@ -537,43 +529,57 @@ async def analyze_image(file: UploadFile = File(...), metadata: str = Form(defau
         if not parsed_meta:
             parsed_meta = {"scale_source": "heuristic_pixel_ratio"}
             
-        depth = S4_estimate_depth(img, detection.get("mock_mask"))
-        geometry = S3_resolve_scale(rim, parsed_meta, detection)
-        pavement_severity = S5_severity(geometry, depth)
-        commuter_risk = S6_vehicle_risk(geometry, depth)
-
-        # Remove numpy arrays from the dicts before JSON serialization
-        if "mock_mask" in detection:
-            del detection["mock_mask"]
-            
-        # Calculate final 1-10 severity dynamically
-        scooter_risk = commuter_risk["e_scooter"]["tier"]
-        astm = pavement_severity["tier"]
-        width_m = geometry.get("chord_width_m", 0.42)
+        max_severity = 0
+        worst_hazard = None
         
-        if scooter_risk == "Critical":
-            final_severity = 9 if width_m >= 0.8 else 8
-        elif scooter_risk == "High" or astm == "High":
-            final_severity = 7
-        elif astm == "Medium":
-            final_severity = 5
-        elif scooter_risk == "Low" or astm == "Low":
-            final_severity = 2
-        else:
-            final_severity = 4
+        for det in detections:
+            # Overwrite variables natively instead of appending to avoid massive RAM spikes
+            rim = S2_extract_rim(det["mock_mask"])
+            depth = S4_estimate_depth(img, det["mock_mask"])
+            geometry = S3_resolve_scale(rim, parsed_meta, det)
+            pavement_severity = S5_severity(geometry, depth)
+            commuter_risk = S6_vehicle_risk(geometry, depth)
+            
+            scooter_risk = commuter_risk["e_scooter"]["tier"]
+            astm = pavement_severity["tier"]
+            width_m = geometry.get("chord_width_m", 0.42)
+            
+            if scooter_risk == "Critical":
+                local_severity = 9 if width_m >= 0.8 else 8
+            elif scooter_risk == "High" or astm == "High":
+                local_severity = 7
+            elif astm == "Medium":
+                local_severity = 5
+            elif scooter_risk == "Low" or astm == "Low":
+                local_severity = 2
+            else:
+                local_severity = 4
+                
+            if local_severity >= max_severity:
+                max_severity = local_severity
+                worst_hazard = {
+                    "detection": det,
+                    "geometry": geometry,
+                    "depth": depth,
+                    "pavement_severity": pavement_severity,
+                    "commuter_risk": commuter_risk
+                }
+                
+        # Clean numpy arrays from the dict before JSON serialization
+        if "mock_mask" in worst_hazard["detection"]:
+            del worst_hazard["detection"]["mock_mask"]
 
-        # Build the exact JSON schema required by the Roadmap (Week 8)
         response_schema = {
             "report_id": f"rep_{uuid.uuid4().hex[:8]}",
-            "service_mode": "A" if geometry["scale_source"] == "ar_measured" else "C",
+            "service_mode": "A" if worst_hazard["geometry"]["scale_source"] == "ar_measured" else "C",
+            "total_potholes_detected": len(detections),
             "quality": quality,
-            "detection": detection,
-            "geometry": geometry,
-            "depth": depth,
-            "pavement_severity": pavement_severity,
-            "commuter_risk": commuter_risk,
-            # BACKWARD COMPATIBILITY for existing Node server (Requires 1-10 integer)
-            "severity": final_severity
+            "detection": worst_hazard["detection"],
+            "geometry": worst_hazard["geometry"],
+            "depth": worst_hazard["depth"],
+            "pavement_severity": worst_hazard["pavement_severity"],
+            "commuter_risk": worst_hazard["commuter_risk"],
+            "severity": max_severity
         }
         
         # Force garbage collection to free up memory before the next request
