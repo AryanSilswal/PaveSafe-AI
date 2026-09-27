@@ -408,73 +408,43 @@ def S3_resolve_scale(rim, metadata, detection):
     }
 
 def S4_estimate_depth(img, mask):
-    """Ordinal posterior over {shallow, moderate, deep, unknown} using Shadow-Crescent Contrast"""
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    if mask is None or np.count_nonzero(mask) == 0:
-        return {"ordinal": "unknown", "posterior": {"shallow": 0, "moderate": 0, "deep": 0}, "source": "shadow_contrast"}
-        
-    # 1. Interior Intensity (Inside the pothole)
-    interior_mean = cv2.mean(gray, mask=mask)[0]
-    
-    # 2. Exterior Intensity (The surrounding road)
-    # Dilate the mask to get an annulus (ring) around the pothole
-    kernel = np.ones((15, 15), np.uint8)
-    dilated_mask = cv2.dilate(mask, kernel, iterations=2)
-    exterior_mask = cv2.subtract(dilated_mask, mask) # Ring around the pothole
-    
-    exterior_mean = cv2.mean(gray, mask=exterior_mask)[0]
-    
-    # 3. Calculate Contrast Ratio
-    # Darker interior = deeper pothole
-    ratio = interior_mean / (exterior_mean + 1e-5)
-    
-    if ratio < 0.65:
-        ordinal = "deep"
-        post = {"shallow": 0.05, "moderate": 0.15, "deep": 0.80}
-    elif ratio < 0.85:
-        ordinal = "moderate"
-        post = {"shallow": 0.10, "moderate": 0.70, "deep": 0.20}
-    else:
-        ordinal = "shallow"
-        post = {"shallow": 0.85, "moderate": 0.10, "deep": 0.05}
-        
+    """Deprecated: Replaced by pure Area/Width mathematical grading"""
     return {
-        "ordinal": ordinal,
-        "posterior": post,
-        "source": "shadow_crescent_contrast",
-        "debug_metrics": {"interior_intensity": round(interior_mean, 1), "exterior_intensity": round(exterior_mean, 1), "ratio": round(ratio, 2)}
+        "ordinal": "N/A (Area-Based)",
+        "posterior": {"shallow": 0, "moderate": 0, "deep": 0},
+        "source": "deprecated",
+        "debug_metrics": {}
     }
 
-def S5_severity(geometry, depth):
-    """Dynamic ASTM tier mapping based on depth and width (Prioritizing IPM Width over Fragile Depth)"""
-    width_m = geometry.get("chord_width_m", 0.42)
-    depth_ordinal = depth.get("ordinal", "unknown")
+def S5_severity(geometry, depth=None):
+    """Dynamic ASTM tier mapping based purely on Area and Width"""
+    area_m2 = geometry.get("rim_area_m2", 0.2)
+    width_m = geometry.get("chord_width_m", 0.4)
     
-    if width_m >= 1.0:
-        tier = "High" # Massive crater is High regardless of shadows (could be flooded)
-    elif width_m >= 0.5:
-        tier = "Medium" if depth_ordinal == "shallow" else "High"
+    if area_m2 >= 1.0 or width_m >= 1.0:
+        tier = "High"
+    elif area_m2 >= 0.25 or width_m >= 0.5:
+        tier = "Medium"
     else:
-        tier = "Medium" if depth_ordinal == "deep" else "Low"
+        tier = "Low"
 
     return {
-        "standard": "ASTM_D6433",
+        "standard": "ASTM_D6433_Area_Based",
         "tier": tier,
         "posterior": {"low": 0.33, "medium": 0.33, "high": 0.33},
         "confidence": "heuristic"
     }
 
-def S6_vehicle_risk(geometry, depth):
-    """Dynamic vehicle risk prioritizing width for flooded scenarios"""
+def S6_vehicle_risk(geometry, depth=None):
+    """Dynamic vehicle risk prioritizing pure area/width"""
+    area_m2 = geometry.get("rim_area_m2", 0.2)
     width_m = geometry.get("chord_width_m", 0.42)
-    depth_ordinal = depth.get("ordinal", "unknown")
     
-    if width_m >= 0.8:
+    if width_m >= 0.8 or area_m2 >= 0.5:
         scooter_tier = "Critical"
-    elif width_m >= 0.24:
-        scooter_tier = "Critical" if depth_ordinal == "deep" else "High"
-    elif width_m < 0.15 and depth_ordinal == "shallow":
+    elif width_m >= 0.4 or area_m2 >= 0.15:
+        scooter_tier = "High"
+    elif width_m < 0.2 and area_m2 < 0.05:
         scooter_tier = "Low"
     else:
         scooter_tier = "Medium"
@@ -483,11 +453,11 @@ def S6_vehicle_risk(geometry, depth):
         "e_scooter": {
             "effective_drop_cm": 20.0 if scooter_tier in ["High", "Critical"] else 5.0, 
             "tier": scooter_tier, 
-            "note": f"Width={width_m}m, Depth={depth_ordinal}"
+            "note": f"Area-Based"
         },
         "car": {
-            "effective_drop_cm": 15.0 if width_m > 0.6 and depth_ordinal == "deep" else 6.9, 
-            "tier": "High" if width_m >= 0.6 else "Medium"
+            "effective_drop_cm": 15.0 if width_m > 0.8 else 6.9, 
+            "tier": "High" if width_m >= 0.8 else "Medium"
         }
     }
 
