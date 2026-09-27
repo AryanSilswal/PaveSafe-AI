@@ -1,130 +1,65 @@
-# PaveSafe AI 🛣️🤖
+# 🛣️ PaveSafe AI
 
-PaveSafe AI is an advanced, AI-powered municipal road hazard detection and dispatch platform. Designed as a comprehensive three-tier system (Frontend, Node.js Backend, and Python AI Microservice), it crowdsources pothole and road hazard data from commuters, analyzes the severity using computer vision, and provides city administrators with a robust dashboard to dispatch repair crews effectively.
+**PaveSafe AI** is an advanced, AI-powered smart city infrastructure platform designed to detect, mathematically measure, and manage road hazards (potholes) using crowdsourced mobile imagery and sensor fusion.
 
-This project is built with rigorous academic and scientific methodologies suitable for international conference publication, featuring a pure-function computer vision pipeline with explicit uncertainty propagation.
+By combining neural network computer vision (YOLOv8) with classical physics algorithms (OpenCV), PaveSafe automatically grades road damage against civil engineering standards (ASTM D6433) and reroutes commuters around critical hazards in real-time.
+
+---
+
+## ✨ Key Features
+
+* **🧠 Custom YOLOv8-Seg AI:** A fine-tuned instance segmentation model trained on thousands of road hazards. It utilizes **Negative Mining** to completely ignore false positives like animals, shadows, speed bumps, and manhole covers.
+* **📐 Sensor Fusion & Physics Engine:** By combining 2D image data with live smartphone Gyroscope (IMU) pitch metrics, the AI calculates the true 3-dimensional width of craters using Inverse Perspective Mapping (IPM)—without needing a LiDAR sensor.
+* **📊 ASTM D6433 Severity Grading:** The AI automatically assigns a 1-10 severity score based on physical width and shadow-crescent depth estimation, evaluating the specific risk to both cars and e-scooters.
+* **🗺️ Smart Commuter Routing:** Integrates with OSRM (Open Source Routing Machine) to calculate the safest route between two destinations, actively avoiding roads with critical, unpatched hazards.
+* **🏢 Admin Dispatch Dashboard:** A dedicated portal for city maintenance crews to view a live heat map of road degradation, dispatch repair trucks, and update hazard statuses to "Resolved".
 
 ---
 
 ## 🏗️ System Architecture
 
-The platform operates on a microservice architecture, ensuring separation of concerns and high scalability:
+PaveSafe operates on a highly decoupled, 3-tier microservice architecture:
 
-1. **Frontend Client (Next.js / React)**
-   - **Hosting:** Vercel (branch: `openstreetmap-version`)
-   - **Stack:** Next.js 16 (App Router), Tailwind CSS, Leaflet Maps, Lucide Icons.
-   - **Role:** Delivers a mobile-optimized 100dvh Commuter PWA and a desktop-class Admin Dashboard.
-
-2. **Core Backend (Node.js / Express)**
-   - **Hosting:** Render (Free Tier)
-   - **Stack:** Node.js, Express, PostgreSQL, Multer, Cloudinary SDK, JWT.
-   - **Role:** Handles user authentication, gamification, database migrations, Cloudinary image streaming, and orchestrates calls to the AI microservice.
-
-3. **AI Microservice (Python / FastAPI)**
-   - **Hosting:** Render (Free Tier)
-   - **Stack:** Python, FastAPI, OpenCV, PyTorch.
-   - **Role:** Receives raw image buffers, executes the S0-S6 computer vision pipeline, and returns calculated severity scores.
+1. **The Frontend (Next.js & React)**
+   * Provides the Commuter Interface (reporting, routing, notifications) and the Admin Dashboard (dispatching, heatmaps).
+   * Built with TailwindCSS and Leaflet.js for high-performance geospatial rendering.
+2. **The Core Backend (Node.js & Express)**
+   * Handles user authentication (JWT), PostgreSQL database management, and cloud image offloading (Cloudinary).
+   * Acts as the secure middleman between the frontend and the AI.
+3. **The AI Microservice (FastAPI & Python)**
+   * A stateless, high-performance math and vision engine.
+   * Runs the **6-Stage PaveSafe Pipeline** on every uploaded image, aggressively managing garbage collection (RAM) to survive on lightweight cloud instances.
 
 ---
 
-## 🔬 AI Methodology & Computer Vision Pipeline
+## 🔬 The 6-Stage AI Physics Pipeline
 
-Due to the absence of stereo calibration files in the Pothole-600 dataset, absolute metric scale mapping (centimeter depth) was impossible. The system utilizes **Mode C (Relative/Ordinal Severity)**, relying on a shadow-crescent contrast heuristic to approximate depth and danger.
-
-The pipeline executes as a series of pure functions:
-* **S0 (Input):** Raw image ingestion.
-* **S1 (Preprocessing):** Noise reduction and normalization.
-* **S2 (Segmentation):** Isolating the pothole perimeter from the asphalt background.
-* **S3 (Feature Extraction):** Analyzing the shadow-crescent ratio inside the segmented bounds.
-* **S4 (Heuristic Evaluation):** Mapping contrast and shadow depth to a relative risk matrix.
-* **S5 (Severity Scoring):** Outputting a normalized integer score (1-10).
-* **S6 (Uncertainty Propagation):** Calculating the confidence interval of the prediction.
+When a commuter uploads a photo, the AI Microservice executes a deterministic pipeline:
+* **S0 - Quality Gate:** Drops blurry images (Laplacian variance) to prevent garbage-in, garbage-out.
+* **S1 - Neural Detection:** YOLOv8 draws precise, pixel-by-pixel polygon masks around every pothole in the frame.
+* **S2 - Rim Extraction (OpenCV):** Calculates the Solidity and Compactness of the crater's edge.
+* **S3 - Scale Resolution (IPM):** Uses the camera's trigonometric pitch to convert pixels into real-world meters.
+* **S4 - Depth Estimation:** Analyzes shadow-crescent contrast to determine if the hole is shallow or deep.
+* **S5 & S6 - Severity & Risk:** Prioritizes hazard width to dynamically calculate risk tiers for different vehicle types, catching flooded craters that mask their own depth.
 
 ---
 
-## ✨ Core Features
+## 💻 Tech Stack
 
-### 🎨 True Dark Mode & Map Auto-Toggling
-* **Perfect Dark Mode:** The UI utilizes Tailwind CSS class-based dark mode, ensuring high-contrast readability across all nested cards, buttons, and text elements without causing "camouflage" or accessibility issues.
-* **Synchronous State:** Powered by a robust `MutationObserver` React hook, dark mode state synchronizes flawlessly across the entire DOM tree without relying on heavy React Context providers.
-* **Auto-Toggling Satellite View:** When switching to Dark Mode, Leaflet maps intelligently auto-toggle from standard OpenStreetMap layers to high-contrast Esri Satellite imagery, and revert to Street View on Light Mode, whilst still preserving manual Layer Control capabilities.
-
-### 🚗 Commuter Module (Mobile-First)
-* **Live Drive Mode:** Floating Waze-style UI. Uses the HTML5 Geolocation API (`watchPosition`) to track user speed and location.
-* **Dynamic Geofence Warnings:** Calculates distance using the Haversine formula. The warning radius scales dynamically based on velocity: `30 meters + (Speed in m/s * 5 seconds)`.
-* **Directional Cone Filtering:** Compares the user's GPS heading against the bearing to the hazard. Only alerts if the pothole is within a ±45° forward cone.
-* **Audio Alerts:** Bypasses mobile autoplay restrictions to synthesize square-wave warning beeps via the Web Audio API.
-* **Camera Integration:** Direct native camera capture for reporting new hazards.
-
-### 🏢 Admin Dashboard (Desktop)
-* **Advanced Data Grid:** Client-side multi-column sorting and filtering (by Status, Date Range, and Min/Max Severity).
-* **Context-Aware CSV Export:** A custom export modal that allows administrators to export the entire raw database *or* strictly the currently filtered/sorted view.
-* **Native Lightbox Image Viewer:** High-resolution hazard images open in a Z-indexed modal overlay, bypassing mobile popup blockers entirely.
-* **Map & List Views:** Seamless toggling between geographical heatmaps and tabular data.
-* **Dispatch Workflow:** Admins assign contractor names and resolution deadlines, moving hazards from `Reported` → `In Progress` → `Resolved`.
-
-### 🎮 Gamification & Strict Penalty System
-* **Points Economy:** Users earn **+5 points** only when an Admin successfully verifies and dispatches their reported hazard.
-* **Rejection Penalties:** If a user submits a fake or blurry image, Admins can reject it. This immediately deducts **-20 points** from the user's account.
-* **Sliding Window Ban Logic:** The PostgreSQL database tracks the last 10 reports for every user via a `recent_reports` JSONB array. If a user receives **5 rejections** within their last 10 reports, they are automatically banned for exactly 2 months and blocked from logging in.
-* **Storage Optimization:** The moment an Admin clicks `Dispatch` or `Reject`, the backend executes a `cloudinary.uploader.destroy()` call, permanently wiping the image from Cloudinary to aggressively save cloud storage space.
+* **Frontend:** Next.js, React, Tailwind CSS, Leaflet.js
+* **Backend:** Node.js, Express, Axios
+* **Database & Storage:** PostgreSQL (Neon), Cloudinary
+* **AI & Physics:** Python, FastAPI, Ultralytics YOLOv8, OpenCV, PyTorch, NumPy
+* **Routing:** OSRM (Open Source Routing Machine) API
 
 ---
 
-## 🗄️ Database Schema (PostgreSQL)
+## 🚧 Known Limitations & Future Scope
 
-The database utilizes spatial queries and strict constraints:
-* `users` table: Maintains `id` (Primary Key), case-sensitive `username` (UNIQUE constraint), `password_hash`, `points`, `banned_until` (Timestamp), and `recent_reports` (JSONB).
-* `hazards` table: Maintains PostGIS `location` (ST_Point, 4326), `severity`, `status`, `reporter_id` (Foreign Key), `image_url`, and `image_public_id`.
-* `notifications` table: Handles system alerts for point rewards and dispatch updates.
-
----
-
-## 🚀 Local Development Setup
-
-### 1. Database
-You will need a PostgreSQL database. Execute the initial migrations provided in the backend setup, or simply let `backend/server.js` run its boot-time `ALTER TABLE` checks to scaffold missing columns.
-
-### 2. Backend (Node.js)
-\`\`\`bash
-cd backend
-npm install
-\`\`\`
-Create a `.env` file in the `backend/` directory:
-\`\`\`env
-PORT=5000
-DATABASE_URL=postgres://user:pass@localhost:5432/pavesafe
-JWT_SECRET=your_super_secret_jwt_key
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-AI_SERVICE_URL=http://localhost:8000
-\`\`\`
-\`\`\`bash
-npm run dev
-\`\`\`
-
-### 3. Frontend (Next.js)
-\`\`\`bash
-cd frontend
-npm install
-\`\`\`
-Create a `.env.local` file in the `frontend/` directory:
-\`\`\`env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-\`\`\`
-\`\`\`bash
-npm run dev
-\`\`\`
-
-### 4. AI Service (Python)
-\`\`\`bash
-cd ai_service
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-\`\`\`
+While highly robust, the current architecture has a few real-world constraints:
+1. **Low Light / Nighttime:** The vision model relies on daylight textures and shadows. Severe motion blur or headlight glare will reduce mask accuracy.
+2. **Repaired Roads (Tar Snakes):** Freshly filled black asphalt can sometimes trick the 2D visual sensors into flagging a repaired hole as a new one. Future iterations aim to integrate smartphone accelerometer data to confirm physical bumps.
+3. **Desktop Uploads:** Accurate mathematical sizing relies on the mobile app's live Gyroscope data. Uploading from a desktop computer strips this metadata, forcing the AI to fallback on less accurate heuristic guessing.
 
 ---
-*Developed for research and municipal safety.*
-
-<!-- Non-effective change -->
+*Built to make cities safer, one street at a time.*
