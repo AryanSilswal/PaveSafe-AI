@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+qa_images/
+qa_images_fast/
+node_modules/
