@@ -138,3 +138,41 @@ A probability (`0.0` to `1.0`) output by YOLOv8-seg showing how certain the mode
 * **Why `YOLOv8-seg` Specifically:**
   * **vs. Standard YOLOv8 (Detection):** Outputs pixel-accurate **polygon masks** instead of coarse rectangles that overestimate area ($\text{m}^2$).
   * **vs. Older Versions (`YOLOv5` / `YOLOv7`):** Uses an **anchor-free split head** and **C2f backbone**, handling irregular, jagged pothole shapes much better without rigid anchor boxes.
+
+---
+
+## 12. Detailed Breakdown of Stages S0 to S6 (`ai-service/main.py`)
+
+### **Stage S0: Optical Quality Gate (`S0_quality_gate`)**
+* **Goal:** Prevent *"garbage-in, garbage-out"* by catching blurry or badly exposed frames before running YOLO.
+* **Logic:** Converts the lower 60% ROI to grayscale and computes **Laplacian Variance** (`cv2.Laplacian(roi, cv2.CV_64F).var()`). Images with `laplacian_var <= 100.0` (or mean brightness `< 40` / `> 230` per report spec) fail the quality gate.
+
+### **Stage S1: Deep Neural Instance Segmentation (`S1_detect_all`)**
+* **Goal:** Detect all potholes and extract pixel-level polygon masks.
+* **Logic:** Runs **YOLOv8-seg** (on images downsampled to max `1024px` for 512MB RAM safety), filters detections at **`conf >= 0.35`**, and resizes each mask tensor to `(w, h)` as a binary `0/255` mask (`mock_mask`).
+* **Failure Gate:** If no mask passes `0.35` (or `masks is None`), raises **HTTP 422 Unprocessable Entity** so Node.js blocks any PostgreSQL write.
+
+### **Stage S2: Morphological Rim Geometry (`S2_extract_rim`)**
+* **Goal:** Extract contour geometry from YOLO's binary mask using **OpenCV**.
+* **Logic:** Uses `cv2.findContours` on the largest contour to compute `area_px`, `perimeter_px`, **`solidity`** (`area_px / convex_hull_area`), and **`compactness`** (`perimeter_px² / area_px`, where a circle $\approx 12.57$).
+
+### **Stage S3: Sensor-Fused IPM Scale Resolution (`S3_resolve_scale`)**
+* **Goal:** Convert 2D pixels into real-world meters ($\text{m}$) and area ($\text{m}^2$) without LiDAR.
+* **Mode A (`imu_measured`):** Uses camera height ($h = 1.08\text{ m}$ in code / $\sim 1.3\text{ m}$ in report) and gyroscope pitch ($\theta$) with $\text{angle\_to\_ground} = \max(5^\circ, 90^\circ - |\text{pitch}|)$, $D = h / \sin(\text{angle\_to\_ground})$, and $60^\circ$ FOV to compute **`chord_width_m`** and **`rim_area_m2`**.
+* **Mode B (`heuristic_pixel_ratio`):** Desktop fallback assuming a static `2.8m` frame width.
+* **Uncertainty:** Computes confidence-based error margins (`chord_width_sigma_m`, `rim_area_sigma_m2`).
+
+### **Stage S4: Depth Estimation (`S4_estimate_depth` — *Deprecated*)**
+* **Why Deprecated:** Rainwater-filled potholes reflect the sky and hide internal shadows, breaking shadow-contrast depth estimation. Returns `"N/A (Area-Based)"` and defers to pure Area/Width grading in Stage S5 (which is why Figure 4.5 in the report skips from S3 to S5).
+
+### **Stage S5: Civil Engineering Severity Grading (`S5_severity`)**
+* **Goal:** Map physical dimensions to **ASTM D6433**:
+  * **High:** `rim_area_m2 >= 1.0 m²` OR `chord_width_m >= 1.0 m`
+  * **Medium:** `rim_area_m2 >= 0.25 m²` OR `chord_width_m >= 0.50 m`
+  * **Low:** Below Medium thresholds
+
+### **Stage S6: Dual-Vehicle Risk Evaluation (`S6_vehicle_risk`)**
+* **Goal:** Evaluate risk separately for **E-Scooters** (8.5–10 inch wheels) vs. **Cars**:
+  * **E-Scooter:** **Critical** (`width >= 0.8m` OR `area >= 0.5m²`), **High** (`width >= 0.4m` OR `area >= 0.15m²`), **Low** (`width < 0.2m` AND `area < 0.05m²`), else **Medium**.
+  * **Car:** **High** if `width >= 0.8m`, else **Medium**.
+* **Aggregation:** Loops over all detections in the frame, computes the **1–10 composite `severity`** (`9, 8, 7, 5, 4, 2`), and returns the **maximum severity** (`worst_hazard`) to Node.js.
