@@ -90,3 +90,51 @@ When an image is passed into **YOLOv8-seg** (`results = model(img)`), it outputs
 ### Program Specific Outcomes (PSOs — B.Tech CSE)
 * **PSO 1 (AI, Vision & Computational Modeling):** Applying deep learning (YOLOv8-seg), computer vision (OpenCV), and projective geometry (IPM) to extract real-world metrics.
 * **PSO 2 (Full-Stack & Spatial Systems Engineering):** Architecting and deploying decoupled, cloud-ready applications using Next.js, Node.js, FastAPI, PostgreSQL/PostGIS, and Docker.
+
+---
+
+## 9. Core Concepts Deep Dive: IPM, IPM Scale & Confidence Score
+
+### What is Inverse Perspective Mapping (IPM)?
+* **Perspective Distortion:** A standard camera projects a 3D road onto a 2D angled photo, making near objects appear huge and distant craters appear tiny.
+* **Inverse Mapping:** IPM mathematically **reverses** that tilted camera projection using trigonometry, camera height ($h_{\text{cam}} \approx 1.3\text{ m}$), and gyroscope pitch angle ($\theta$) to project 2D pixels back onto the flat 3D road plane (bird's-eye ground view).
+
+### What is IPM Scale (`S_metric`)?
+IPM Scale is the **meters-per-pixel conversion factor** for that image's tilt angle (`S3_resolve_scale`):
+1. $D = \frac{h_{\text{cam}}}{\tan(\theta)}$ *(ground distance)*
+2. $S_{\text{metric}} = \frac{D}{800.0}$ *(meters per pixel)*
+3. $\text{Width (m)} = W_{\text{px}} \times S_{\text{metric}}$, and $\text{Area (m}^2\text{)} = A_{\text{px}} \times (S_{\text{metric}})^2$
+
+### What is Confidence Score (`conf`)?
+A probability (`0.0` to `1.0`) output by YOLOv8-seg showing how certain the model is that a region is a pothole. PaveSafe enforces a **`0.35` (`35%`)** cutoff—any frame below `0.35` raises **HTTP 422** so uncertain predictions never enter PostgreSQL.
+
+---
+
+## 10. Route Optimization & The 50-Meter Buffer Trade-off
+
+### How Route Safety Scoring Works in Code
+1. **Frontend (`commuter/page.tsx`):** Fetches the driving route geometry from the public **OSRM** API (`router.project-osrm.org/route/v1/driving/...`).
+2. **Backend (`POST /api/routes/score`):** Converts the route coordinates into a PostGIS `LINESTRING` and queries:
+   ```sql
+   SELECT id, severity FROM hazards
+   WHERE ST_DWithin(location, ST_GeomFromText($1, 4326), 50, true)
+     AND status != 'Resolved'
+   ```
+3. **Safety Score Formula:** `safetyScore = Math.max(0, 100 - totalSeverity * 2)` (plus counts of `hazardsCount` and `criticalHazards` where `severity >= 8`).
+4. **Alternative Routes:** Currently, the prototype scores the primary route from the public OSRM API; in full production (self-hosted OSRM or `alternatives=true`), road segments with `Severity >= 7` receive edge-weight penalties to force safer detours.
+
+### Why a 50-Meter Buffer? (And Its Limitation)
+* **Why 50m:** Accounts for urban smartphone GPS drift (**10–25m**) and sidewalk-to-centerline offset when commuters photograph potholes on wide multi-lane roads.
+* **Limitation:** Near intersections, a 50m buffer can accidentally include a hazard on a perpendicular side street when driving straight.
+* **Production Fix:** **Road-Segment Map Matching**—snapping each pothole at ingestion time to its exact OpenStreetMap `way_id` (road edge) so straight routes only count hazards on the exact traversed road segments.
+
+---
+
+## 11. YOLO Deep Dive: What, Why, and Version Choice
+
+* **What is YOLO?** **You Only Look Once**—a single-stage CNN that processes the entire image in one forward pass (unlike two-stage detectors such as Mask R-CNN or Faster R-CNN).
+* **What It Does in PaveSafe:** Simultaneously predicts class/confidence (`pothole`), bounding box (`xywhn`), and **pixel-level polygon mask (`masks.data`)** in ~30–40 ms on CPU.
+* **Why YOLO over Mask R-CNN / Faster R-CNN:** Sub-40ms CPU speed, tiny memory footprint (survives 512MB RAM cloud containers), and clean FastAPI/PyTorch deployment.
+* **Why `YOLOv8-seg` Specifically:**
+  * **vs. Standard YOLOv8 (Detection):** Outputs pixel-accurate **polygon masks** instead of coarse rectangles that overestimate area ($\text{m}^2$).
+  * **vs. Older Versions (`YOLOv5` / `YOLOv7`):** Uses an **anchor-free split head** and **C2f backbone**, handling irregular, jagged pothole shapes much better without rigid anchor boxes.
